@@ -1,0 +1,75 @@
+﻿@page "/login"
+@using Microsoft.Extensions.Configuration
+@using System.Threading.Tasks
+@using TableroApuestas.Models
+@using TableroApuestas.Data
+@using System.Data
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+@inject AccesoDatos AccesoDatos
+
+<title>Login - Apuestas</title>
+
+<head>
+    <link href="css/login.css" rel="stylesheet" />
+</head>
+
+<h1>Iniciar Sesión</h1>
+
+<form @onsubmit="Ingresar" class="login-form">
+    <div class="form-group">
+        <label for="nombre">Usuario</label>
+        <input type="text" id="nombre" class="form-control" @bind="usuario.nombre">
+    </div>
+    <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" class="form-control" @bind="usuario.password">
+    </div>
+    <button type="submit" class="btn btn-primary">Ingresar</button>
+</form>
+
+<!-- 🔹 Link al registro -->
+<div class="text-center mt-3">
+    <a href="/registro">¿No tenés cuenta? Registrate aquí</a>
+</div>
+
+@if (!string.IsNullOrEmpty(mensajeError))
+{
+    <div class="alert alert-danger text-center" role="alert">
+        <span class="icono-advertencia">⚠️</span> @mensajeError
+    </div>
+}
+
+@code {
+    private Usuario usuario = new Usuario();
+    private string mensajeError = "";
+
+    private async Task Ingresar()
+    {
+        if (string.IsNullOrWhiteSpace(usuario.nombre) || string.IsNullOrWhiteSpace(usuario.password))
+        {
+            mensajeError = "Por favor, ingrese usuario y contraseña.";
+            return;
+        }
+
+        try
+        {
+            // 🔹 Validación con bcrypt
+            bool accesoValido = AccesoDatos.ValidarUsuario(usuario.nombre, usuario.password);
+
+            if (accesoValido)
+            {
+                NavigationManager.NavigateTo("/tablero-principal");
+            }
+            else
+            {
+                mensajeError = "Credenciales incorrectas. Por favor, inténtalo de nuevo.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = "Ocurrió un error al procesar la solicitud. Por favor, inténtalo más tarde.";
+            Console.WriteLine(ex.ToString());
+        }
+    }
+}

@@ -1,0 +1,104 @@
+﻿@page "/tablero-futbol"
+@using Microsoft.Extensions.Configuration
+@using System.Threading.Tasks
+@using TableroApuestas.Models
+@using TableroApuestas.Data
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+@inject AccesoDatos AccesoDatos
+
+<title>Tablero Fútbol - Apuestas</title>
+
+<head>
+    <link href="css/tablero-futbol.css" rel="stylesheet" />
+</head>
+
+<div class="contenedor-botones">
+    <a href="/tablero-principal" class="volver">Volver a Tablero Principal</a>
+</div>
+
+<h1 class="titulo">Tablero Fútbol</h1>
+
+@if (mostrarTablaMes)
+{
+    <h2>Tabla de Meses</h2>
+    <table class="tabla">
+        <thead>
+            <tr>
+                <th>Mes</th>
+                <th>Monto</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mes in meses)
+            {
+                <tr>
+                    <td>@mes.Nombre</td>
+                    <td style="color: @(mes.Monto >= 100000 ? "green" : (mes.Monto >= 50000 ? "blue" : "red"));">$@mes.Monto</td>
+                    <td><button class="ver-detalle" @onclick="() => MostrarTablaLiga(mes.Id)">Ver Liga</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (mostrarTablaLiga)
+{
+    <h2>Tabla de Ligas</h2>
+    <table class="tabla">
+        <thead>
+            <tr>
+                <th>Liga</th>
+                <th>Monto Generado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var liga in ligas)
+            {
+                <tr>
+                    <td>@liga.Nombre</td>
+                    <td style="color: @(liga.Monto >= 40000 ? "green" : (liga.Monto >= 25000 ? "blue" : "red"));">$@liga.Monto</td>
+                    <td><button class="ver-detalle" @onclick="MostrarTablaMes">Volver a Meses</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private bool mostrarTablaMes = true;
+    private bool mostrarTablaLiga = false;
+    private List<Mes> meses = new List<Mes>();
+    private List<Liga> ligas = new List<Liga>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtener los datos de los meses y sus montos
+        await ObtenerDatosMesesAsync();
+    }
+
+    private async Task ObtenerDatosMesesAsync()
+    {
+        // Aquí debes usar tu AccesoDatos para obtener los datos de los meses y sus montos para el deporte de fútbol
+        // Puedes modificar la consulta según la estructura de tu base de datos
+        meses = await AccesoDatos.ObtenerDatosMesesFutbolAsync();
+    }
+
+    private async Task MostrarTablaLiga(int idMes)
+    {
+        // Aquí debes obtener los datos de las ligas para el mes específico (idMes) y sus montos
+        // Puedes modificar la consulta según la estructura de tu base de datos
+        ligas = await AccesoDatos.ObtenerDatosLigasFutbolPorMesAsync(idMes);
+        mostrarTablaMes = false;
+        mostrarTablaLiga = true;
+    }
+
+    private void MostrarTablaMes()
+    {
+        mostrarTablaMes = true;
+        mostrarTablaLiga = false;
+    }
+}

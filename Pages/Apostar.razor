@@ -1,0 +1,374 @@
+﻿<h3>Apostar</h3>
+@page "/apostar"
+@using System.Data
+@using System.Linq
+@using Microsoft.AspNetCore.Components
+@inject TableroApuestas.Data.AccesoDatos AccesoDatos
+@inject NavigationManager Nav
+
+<style>
+    /* Fondo negro pleno (anula overlays globales) */
+    <!-- ====== ESTILOS LOCALES (solo esta página) ====== -->
+   
+    body::before {
+        background: #000 !important;
+        opacity: 1 !important;
+    }
+
+    .apuesta-page {
+        min-height: 100vh;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 28px 16px 40px;
+    }
+
+    .titulo-apuesta {
+        color: #e9c06b;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: clamp(28px, 4.2vw, 44px);
+        margin: 6px 0 18px;
+        text-shadow: 0 6px 18px rgba(0,0,0,.45);
+    }
+
+    .apuesta-card {
+        width: 100%;
+        max-width: 860px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 16px;
+        padding: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.35);
+        color: #f3f3f3;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* 👉 importante: en Razor es @@media */
+    @@media (min-width: 820px) {
+        .form-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+        .campo label {
+            font-size: 15px;
+            color: #ddd;
+        }
+
+        .campo select,
+        .campo input[type="number"] {
+            height: 44px;
+            border-radius: 10px;
+            background-color: #111; /* fondo uniforme oscuro */
+            border: 1px solid #FFD700; /* borde dorado */
+            color: #fff; /* texto blanco */
+            padding: 8px 10px;
+            outline: none;
+            transition: 0.3s;
+            appearance: none; /* quita el estilo nativo */
+            -webkit-appearance: none; /* Safari/Chrome */
+            -moz-appearance: none; /* Firefox */
+        }
+
+            .campo select:focus,
+            .campo input[type="number"]:focus {
+                border-color: #FF8C00; /* naranja al enfocar */
+                box-shadow: 0 0 6px rgba(255, 140, 0, 0.6);
+            }
+
+            .campo select:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+    .span-2 {
+        grid-column: 1 / -1;
+    }
+
+    .acciones {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .btn-main {
+        padding: 12px 18px;
+        font-size: 16px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #c9922e, #8a5d16);
+        color: #fff;
+        cursor: pointer;
+        min-width: 220px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    }
+
+    .btn-ghost {
+        padding: 12px 18px;
+        font-size: 16px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.10);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.18);
+        cursor: pointer;
+        min-width: 180px;
+    }
+
+    .mensaje {
+        margin-top: 10px;
+        text-align: center;
+        color: #f0d28c;
+    }
+</style>
+
+<div class="apuesta-page">
+    <h1 class="titulo-apuesta">Nueva apuesta</h1>
+
+    <div class="apuesta-card">
+        <div class="form-grid">
+            <div class="campo">
+                <label>Deporte</label>
+                <select @bind="IdDeporte">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Deportes)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Liga</label>
+                <select @bind="IdLiga" disabled="@(IdDeporte == null)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Ligas)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Fixture</label>
+                <select @bind="IdFixture" disabled="@(IdLiga == null)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Fixtures)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Equipo</label>
+                <select @bind="IdEquipo" disabled="@(IdFixture == null)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in EquiposFixture)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Jugador</label>
+                <select @bind="IdJugador" disabled="@(IdEquipo == null)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Jugadores)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Tipo</label>
+                <select @bind="Tipo">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="0">Goles</option>
+                    <option value="1">Asistencias</option>
+                    <option value="2">Tarjetas</option>
+                </select>
+            </div>
+
+            <div class="campo span-2">
+                <label>Monto</label>
+                <input type="number" step="0.01" min="0" @bind="Monto" />
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button class="btn-main" @onclick="Guardar" disabled="@(!PuedeGuardar())">Guardar apuesta</button>
+            <a class="btn-ghost" href="/tablero-principal">Cancelar</a>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Msg))
+        {
+            <div class="mensaje">@Msg</div>
+        }
+    </div>
+</div>
+
+@code {
+    // ===== Query string: ?deporte=futbol/basquet/tenis =====
+    [Parameter, SupplyParameterFromQuery(Name = "deporte")]
+    public string? DeporteQS { get; set; }
+
+    private class Opt { public int Id { get; set; } public string Text { get; set; } = ""; }
+
+    private List<Opt> Deportes = new();
+    private List<Opt> Ligas = new();
+    private List<Opt> Fixtures = new();
+    private List<Opt> EquiposLiga = new();
+    private List<Opt> EquiposFixture = new();
+    private List<Opt> Jugadores = new();
+
+    private int? _idDeporte, _idLiga, _idFixture, _idEquipo, _idJugador;
+    private byte? _tipo;
+    private decimal _monto;
+    private string Msg = "";
+
+    private int? IdDeporte
+    {
+        get => _idDeporte;
+        set { if (_idDeporte != value) { _idDeporte = value; _ = CargarLigasAsync(); } }
+    }
+    private int? IdLiga
+    {
+        get => _idLiga;
+        set { if (_idLiga != value) { _idLiga = value; _ = CargarFixturesYEquiposLigaAsync(); } }
+    }
+    private int? IdFixture
+    {
+        get => _idFixture;
+        set { if (_idFixture != value) { _idFixture = value; _ = ActualizarEquiposDelFixtureAsync(); } }
+    }
+    private int? IdEquipo
+    {
+        get => _idEquipo;
+        set { if (_idEquipo != value) { _idEquipo = value; _ = CargarJugadoresAsync(); } }
+    }
+    private int? IdJugador { get => _idJugador; set => _idJugador = value; }
+    private byte? Tipo { get => _tipo; set => _tipo = value; }
+    private decimal Monto { get => _monto; set => _monto = value; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var dt = await AccesoDatos.ObtenerDeportesBasicosAsync();
+        foreach (DataRow r in dt.Rows)
+            Deportes.Add(new Opt { Id = Convert.ToInt32(r["id_deporte"]), Text = r["nombre"]?.ToString() ?? "" });
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Preseleccionar deporte desde el query string
+        if (!string.IsNullOrWhiteSpace(DeporteQS) && IdDeporte == null)
+        {
+            var id = await AccesoDatos.ObtenerIdDeportePorNombreAsync(DeporteQS.Trim());
+            if (id.HasValue) IdDeporte = id.Value;   // dispara CargarLigasAsync()
+        }
+    }
+
+    private async Task CargarLigasAsync()
+    {
+        Ligas.Clear(); Fixtures.Clear(); EquiposLiga.Clear(); EquiposFixture.Clear(); Jugadores.Clear();
+        IdLiga = IdFixture = IdEquipo = IdJugador = null;
+        if (IdDeporte == null) return;
+
+        var dt = await AccesoDatos.ObtenerLigasPorDeporteAsyncDT(IdDeporte.Value);
+        foreach (DataRow r in dt.Rows)
+            Ligas.Add(new Opt { Id = Convert.ToInt32(r["id_liga"]), Text = r["nombre"]?.ToString() ?? "" });
+    }
+
+    private async Task CargarFixturesYEquiposLigaAsync()
+    {
+        Fixtures.Clear(); EquiposLiga.Clear(); EquiposFixture.Clear(); Jugadores.Clear();
+        IdFixture = IdEquipo = IdJugador = null;
+        if (IdLiga == null) return;
+
+        var dtf = await AccesoDatos.ObtenerFixturesPorLigaAsyncDT(IdLiga.Value);
+        foreach (DataRow r in dtf.Rows)
+        {
+            var desc = r["descripcion"] == DBNull.Value ? $"Fixture #{r["id_fixture"]}" : r["descripcion"]!.ToString();
+            var fecha = Convert.ToDateTime(r["fecha"]).ToString("dd/MM/yyyy HH:mm");
+            Fixtures.Add(new Opt { Id = Convert.ToInt32(r["id_fixture"]), Text = $"{desc} - {fecha}" });
+        }
+
+        var dte = await AccesoDatos.ObtenerEquiposPorLigaAsyncDT(IdLiga.Value);
+        foreach (DataRow r in dte.Rows)
+            EquiposLiga.Add(new Opt { Id = Convert.ToInt32(r["id_equipo"]), Text = r["nombre"]?.ToString() ?? "" });
+    }
+
+    private async Task ActualizarEquiposDelFixtureAsync()
+    {
+        EquiposFixture.Clear(); Jugadores.Clear(); IdEquipo = IdJugador = null;
+        if (IdFixture == null || IdLiga == null) return;
+
+        var dtf = await AccesoDatos.ObtenerFixturesPorLigaAsyncDT(IdLiga.Value);
+
+        DataRow? row = null;
+        foreach (DataRow r in dtf.Rows)
+        {
+            if (Convert.ToInt32(r["id_fixture"]) == IdFixture.Value) { row = r; break; }
+        }
+        if (row == null) return;
+
+        var idLocal = Convert.ToInt32(row["id_equipo_local"]);
+        var idVisit = Convert.ToInt32(row["id_equipo_visitante"]);
+
+        string NombreEquipo(int id) => EquiposLiga.First(e => e.Id == id).Text;
+
+        EquiposFixture.Add(new Opt { Id = idLocal, Text = NombreEquipo(idLocal) });
+        EquiposFixture.Add(new Opt { Id = idVisit, Text = NombreEquipo(idVisit) });
+        StateHasChanged();
+    }
+
+    private async Task CargarJugadoresAsync()
+    {
+        Jugadores.Clear(); IdJugador = null;
+        if (IdEquipo == null) return;
+
+        var dt = await AccesoDatos.ObtenerJugadoresPorEquipoAsyncDT(IdEquipo.Value);
+        foreach (DataRow r in dt.Rows)
+            Jugadores.Add(new Opt { Id = Convert.ToInt32(r["id_jugador"]), Text = r["nombre"]?.ToString() ?? "" });
+    }
+
+    private bool PuedeGuardar() =>
+        IdDeporte != null && IdLiga != null && IdFixture != null && IdEquipo != null &&
+        IdJugador != null && Tipo != null && Monto > 0;
+
+    private async Task Guardar()
+    {
+        try
+        {
+            var id = await AccesoDatos.InsertarApuestaAsync(
+                idUsuario: 1, // TODO: usar el usuario logueado real
+                idDeporte: IdDeporte!.Value,
+                idLiga: IdLiga!.Value,
+                idEquipo: IdEquipo!.Value,
+                idFixture: IdFixture!.Value,
+                idJugador: IdJugador!.Value,
+                tipoApuesta: Tipo!.Value,
+                monto: Monto,
+                fechaCreacion: DateTime.Now,
+                estado: 0
+            );
+            Msg = $"✅ Apuesta #{id} guardada.";
+        }
+        catch (Exception ex) { Msg = "❌ Error: " + ex.Message; }
+    }
+}
