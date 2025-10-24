@@ -1,52 +1,17 @@
-# 🎯 Jugada Maestra
+Aquí realizamos nuestra primera versión en GitHub de Jugada Maestra. Cuenta con el Login con un funcionamiento lógico exitoso, y una clara visualización del tablero con las 3 entidades drill up - drill down obligatorias, con objetivos propuestos por deporte y gracias a ello, con un tablero con su semaforización exitosa. Además se realizó un prototipo para que el usuario pueda apostar, dándole un estilo de un proyecto de apuestas deportivas.
 
-**Jugada Maestra** es un sistema web desarrollado como trabajo práctico para la materia **Base de Datos Aplicadas**, cuyo objetivo es gestionar y visualizar apuestas deportivas mediante un tablero interactivo con **semaforización** (colores) y funcionalidades de **Drill Up** y **Drill Down**.
+Su funcionamiento es el siguiente:
 
----
+Al compilar el proyecto, se abrirá el login para que el usuario pueda loguearse. En caso de no estar registrado, el usuario completará el formulario poniendo su nombre y contraseña. El sistema automáticamente guardará esa contraseña hasheada, utilizando el BCrypt.
 
-## 🧩 Características principales
+Una vez iniciado, podremos ver el tablero de 3 deportes distintos: fútbol, tenis y básquet. Con cada uno, se verá su detalle, el siguiente contará con un monto recaudado, un monto establecido como objetivo a cumplir, y un estado: Superado / cumple / no superado. Podremos ver en detalle, la cantidad recaudada por mes, y a la vez cuánto se recaudó por liga del deporte establecido. En base al monto establecido como objetivo, el mismo contará con su semaforización para las tablas de los meses y para las tablas de las ligas.
 
-- ✅ Tablero de apuestas con indicadores visuales (semaforización por estado o resultado).  
-- 📊 Navegación jerárquica con **Drill Up** y **Drill Down** para explorar distintos niveles de detalle.  
-- ⚙️ Conexión a base de datos **Access (.accdb)** para registrar, consultar y actualizar información de apuestas.  
-- 🧠 Interfaz intuitiva para la toma de decisiones y análisis visual de rendimiento.  
-- 💻 Implementado con **ASP.NET Core (Blazor Server)**, totalmente en C#.  
+El monto establecido como objetivo a cumplir, se puede establecer al inicio de los tableros de los deportes.
 
----
+Veamos un ejemplo práctico:
+Para el deporte fútbol, establecemos un monto como objetivo a cumplir de $30.000. Si observamos su tablero, el monto recaudado es de $185.000, por lo tanto su estado será: "Objetivo Superado". Si vemos en detalle, en la tabla de "Meses" vemos que en Agosto se recaudó $100.000, Septiembre $30.000 y Octubre $55.000. El sistema de manera automática pondrá en verde el mes de Agosto, en rojo Septiembre y en azul (intermedio) el mes de Octubre. Y si entramos a la tabla de Ligas, dentro de la Serie A se recaudó $40.000, Premier League $60.000, y LaLiga $85.000. Por lo tanto rojo para Serie A, Premier League azul, y LaLiga en verde.
 
-## 🏗️ Arquitectura del proyecto
+Aquí vemos un drill up y drill down de manera clara:
+Deportes <--> Ligas <--> Meses
 
-El sistema está estructurado en **capas lógicas**, respetando la separación de responsabilidades:
-
-- **Data:** conexión y acceso a la base de datos Access.  
-- **Models:** definición de las clases y entidades del dominio.  
-- **Pages:** interfaz de usuario (archivos `.razor`).  
-- **wwwroot:** recursos estáticos (CSS, imágenes, scripts).  
-
----
-
-## 🧰 Tecnologías utilizadas
-
-| Tecnología | Descripción |
-|-------------|-------------|
-| **C# / .NET 8.0** | Lenguaje y framework principal del proyecto. |
-| **ASP.NET Core (Blazor Server)** | Framework web para crear interfaces interactivas con Razor y C#. |
-| **Microsoft Access** | Base de datos utilizada para persistencia local. |
-| **Entity Framework Core** | ORM para el mapeo de entidades y consultas a Access. |
-| **Git & GitHub** | Control de versiones y repositorio remoto del proyecto. |
-
----
-
-## 👨‍💻 Autores
-
-**Danilo Cerasa** e **Ignacio Criscenti**  
-📍 Universidad Abierta Interamericana (UAI)  
-📚 Carrera: *Ingeniería en Sistemas de Información*  
-📆 Año: *Tercer año, segundo cuatrimestre (2025)*  
-
----
-
-## 🧾 Licencia
-
-Este proyecto fue desarrollado con fines **académicos** y **educativos**.  
-No se distribuye con fines comerciales.
+Por último, se realizó un botón para Apostar, pero es tan solo un prototipo.
