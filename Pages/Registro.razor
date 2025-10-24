@@ -1,0 +1,76 @@
+﻿<h3>Registro.razor</h3>
+
+@page "/registro"
+@using TableroApuestas.Data
+@inject AccesoDatos AccesoDatos
+@inject NavigationManager NavigationManager
+
+<title>Registro - Apuestas</title>
+
+<head>
+    <link href="css/registro.css" rel="stylesheet" />
+</head>
+
+<h1>Crear nueva cuenta</h1>
+
+<form @onsubmit="Registrar" class="login-form">
+    <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" class="form-control" @bind="nombre" />
+    </div>
+
+    <div class="form-group">
+        <label for="apellido">Apellido</label>
+        <input type="text" id="apellido" class="form-control" @bind="apellido" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" class="form-control" @bind="password" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Registrar</button>
+</form>
+
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="alert alert-info text-center mt-3">@mensaje</div>
+}
+
+<div class="text-center mt-3">
+    <a href="/login">¿Ya tenés cuenta? Iniciá sesión</a>
+</div>
+
+@code {
+    private string nombre = "";
+    private string apellido = "";
+    private string password = "";
+    private string mensaje = "";
+
+    private void Registrar()
+    {
+        if (string.IsNullOrWhiteSpace(nombre) ||
+            string.IsNullOrWhiteSpace(apellido) ||
+            string.IsNullOrWhiteSpace(password))
+        {
+            mensaje = "Todos los campos son obligatorios.";
+            return;
+        }
+
+        try
+        {
+            // 🚀 Guarda el hash bcrypt en la BD
+            AccesoDatos.RegistrarUsuario(nombre, apellido, password);
+
+            mensaje = "Usuario registrado con éxito ✅";
+
+            // Redirige al login automáticamente
+            NavigationManager.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            mensaje = "Error al registrar usuario.";
+            Console.WriteLine(ex.ToString());
+        }
+    }
+}

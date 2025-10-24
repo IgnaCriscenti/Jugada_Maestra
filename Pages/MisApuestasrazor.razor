@@ -1,0 +1,112 @@
+﻿@page "/misapuestas"
+@using TableroApuestas.Data
+@using TableroApuestas.Models
+@inject AccesoDatos AccesoDatos
+
+<!-- 🔹 Estilos locales -->
+<link href="css/misapuestas.css" rel="stylesheet" />
+
+<div class="contenedor-apuestas">
+    <h1 class="titulo-apuestas">🧾 Mis Apuestas</h1>
+
+    @if (ApuestasUsuario == null)
+    {
+        <p class="mensaje-carga">Cargando apuestas...</p>
+    }
+    else if (ApuestasUsuario.Count == 0)
+    {
+        <p class="mensaje-vacio">No tenés apuestas registradas.</p>
+    }
+    else
+    {
+        <!-- 🔹 Resumen superior -->
+        <div class="resumen-apuestas">
+            <div class="resumen-card">
+                <span class="icono">💰</span>
+                <div>
+                    <h3>Total Apostado</h3>
+                    <p>$@TotalApostado.ToString("N2")</p>
+                </div>
+            </div>
+
+            <div class="resumen-card">
+                <span class="icono">🧾</span>
+                <div>
+                    <h3>Apuestas Totales</h3>
+                    <p>@CantidadApuestas</p>
+                </div>
+            </div>
+
+            <div class="resumen-card">
+                <span class="icono">⚙️</span>
+                <div>
+                    <h3>Promedio</h3>
+                    <p>$@PromedioApuesta.ToString("N2")</p>
+                </div>
+            </div>
+
+            <div class="resumen-card">
+                <span class="icono">📈</span>
+                <div>
+                    <h3>Pendientes</h3>
+                    <p>@Pendientes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔹 Tabla -->
+        <table class="tabla-apuestas">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ap in ApuestasUsuario)
+                {
+                    <tr>
+                        <td>@ap.IdApuesta</td>
+                        <td>$@ap.Monto</td>
+                        <td class="@GetEstadoClase(ap.Estado)">@ap.Estado</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<Apuesta> ApuestasUsuario;
+    private decimal TotalApostado;
+    private int CantidadApuestas;
+    private decimal PromedioApuesta;
+    private int Pendientes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        int idUsuario = 1; // Luego se reemplaza por el usuario logueado
+        ApuestasUsuario = await AccesoDatos.ObtenerApuestasPorUsuarioAsync(idUsuario);
+
+        if (ApuestasUsuario != null && ApuestasUsuario.Count > 0)
+        {
+            TotalApostado = ApuestasUsuario.Sum(a => a.Monto);
+            CantidadApuestas = ApuestasUsuario.Count;
+            PromedioApuesta = TotalApostado / CantidadApuestas;
+            Pendientes = ApuestasUsuario.Count(a => a.Estado == "Pendiente");
+        }
+    }
+
+    private string GetEstadoClase(string estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "estado-pendiente",
+            "Ganada" => "estado-ganada",
+            "Perdida" => "estado-perdida",
+            _ => ""
+        };
+    }
+}
+

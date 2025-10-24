@@ -1,0 +1,16 @@
+wwwroot\css\apostar.css
+wwwroot\css\index.css
+wwwroot\css\login.css
+wwwroot\css\mis-apuestas.css
+wwwroot\css\modificar-objetivos.css
+wwwroot\css\registro.css
+wwwroot\css\site.css
+wwwroot\css\tablero-basquet.css
+wwwroot\css\tablero-futbol.css
+wwwroot\css\tablero-principal.css
+wwwroot\css\tablero-tenis.css
+wwwroot\favicon.ico
+wwwroot\Resources\apuestas-deportivas.jpg
+wwwroot\Resources\fondo-chicos.jpg
+wwwroot\Resources\fondo-fichas.jpg
+wwwroot\Resources\pelota.jpeg

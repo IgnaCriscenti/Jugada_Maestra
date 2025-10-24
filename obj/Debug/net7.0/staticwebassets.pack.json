@@ -1,0 +1,85 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\Resources\\apuestas-deportivas.jpg",
+      "PackagePath": "staticwebassets\\Resources\\apuestas-deportivas.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\Resources\\fondo-chicos.jpg",
+      "PackagePath": "staticwebassets\\Resources\\fondo-chicos.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\Resources\\fondo-fichas.jpg",
+      "PackagePath": "staticwebassets\\Resources\\fondo-fichas.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\Resources\\pelota.jpeg",
+      "PackagePath": "staticwebassets\\Resources\\pelota.jpeg"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\apostar.css",
+      "PackagePath": "staticwebassets\\css\\apostar.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\index.css",
+      "PackagePath": "staticwebassets\\css\\index.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\login.css",
+      "PackagePath": "staticwebassets\\css\\login.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\mis-apuestas.css",
+      "PackagePath": "staticwebassets\\css\\mis-apuestas.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\modificar-objetivos.css",
+      "PackagePath": "staticwebassets\\css\\modificar-objetivos.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\registro.css",
+      "PackagePath": "staticwebassets\\css\\registro.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\tablero-basquet.css",
+      "PackagePath": "staticwebassets\\css\\tablero-basquet.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\tablero-futbol.css",
+      "PackagePath": "staticwebassets\\css\\tablero-futbol.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\tablero-principal.css",
+      "PackagePath": "staticwebassets\\css\\tablero-principal.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\css\\tablero-tenis.css",
+      "PackagePath": "staticwebassets\\css\\tablero-tenis.css"
+    },
+    {
+      "Id": "C:\\Users\\Usuario\\Downloads\\Jugada-Maestra\\Jugada-Maestra\\Jugada Maestra\\Jugada Maestra\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.TableroApuestas.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.build.TableroApuestas.props",
+      "PackagePath": "build\\TableroApuestas.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildMultiTargeting.TableroApuestas.props",
+      "PackagePath": "buildMultiTargeting\\TableroApuestas.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildTransitive.TableroApuestas.props",
+      "PackagePath": "buildTransitive\\TableroApuestas.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

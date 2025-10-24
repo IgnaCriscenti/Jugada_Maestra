@@ -1,0 +1,119 @@
+/* ===== Fondo de la página ===== */
+body {
+    background-color: #2b2b2b; /* Fondo gris oscuro para contraste */
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ===== Título "Deportes" ===== */
+.titulo {
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    font-size: 52px;
+    font-family: 'Roboto Slab', serif;
+    background: linear-gradient(135deg, #FFD700, #FF8C00); /* Dorado a naranja */
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    user-select: none;
+    outline: none;
+}
+
+/* ===== Tablas ===== */
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+    .tabla th, .tabla td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .tabla th {
+        background: linear-gradient(135deg, #FFD700, #FF8C00); /* Encabezado dorado/naranja */
+        color: #2b1a00;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .tabla tr:nth-child(even) {
+        background-color: rgba(255, 215, 0, 0.08); /* Dorado claro alternado */
+    }
+
+    .tabla tr:hover {
+        background-color: rgba(255, 165, 0, 0.2); /* Naranja suave al hover */
+    }
+
+/* ===== Botones ===== */
+.contenedor-botones {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    margin-top: 10px;
+}
+
+.guardar, .volver {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #2b1a00;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+    .guardar:hover, .volver:hover {
+        background: linear-gradient(135deg, #FFC107, #FF6A00);
+        transform: scale(1.05);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+    }
+
+    .guardar:active, .volver:active {
+        background: linear-gradient(135deg, #FFA000, #E65100);
+        transform: scale(0.98);
+    }
+
+/* ===== Popup ===== */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 140, 0, 0.95));
+    z-index: 1000;
+    width: 320px;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    color: #2b1a00;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+.popup-content {
+    padding: 12px;
+}
+
+/* Estilos para las celdas de la columna Deporte */
+.tabla td:first-child {
+    color: #FFD700; /* Dorado brillante */
+    font-weight: bold;
+    font-size: 18px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+}
+
