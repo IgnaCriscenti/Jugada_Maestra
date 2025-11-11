@@ -6,11 +6,11 @@
         public int IdApuesta { get; set; }
         public int IdFixture { get; set; }
         public int IdJugador { get; set; }
-        public int TipoApuesta { get; set; }
+        public string TipoApuestaTexto { get; set; } = "";
 
         public Apuesta? Apuesta { get; set; }
         public Fixture? Fixture { get; set; }
         public Jugador? Jugador { get; set; }
-        public TipoEvento? TipoEvento { get; set; }
+        public Equipo? Equipo { get; set; }
     }
 }
