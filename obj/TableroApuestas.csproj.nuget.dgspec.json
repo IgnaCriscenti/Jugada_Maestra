@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra\\TableroApuestas.csproj": {}
+    "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra V3\\TableroApuestas.csproj": {}
   },
   "projects": {
-    "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra\\TableroApuestas.csproj": {
+    "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra V3\\TableroApuestas.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra\\TableroApuestas.csproj",
+        "projectUniqueName": "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra V3\\TableroApuestas.csproj",
         "projectName": "TableroApuestas",
-        "projectPath": "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra\\TableroApuestas.csproj",
+        "projectPath": "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra V3\\TableroApuestas.csproj",
         "packagesPath": "C:\\Users\\igcri\\.nuget\\packages\\",
-        "outputPath": "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra\\obj\\",
+        "outputPath": "C:\\DOCUMENTOS IGNA\\IgnaOffice\\UAI\\TERCER AÑO\\Segundo cuatrimestre\\Base de Datos aplicadas\\Jugada Maestra V3\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -58,6 +58,10 @@
             "Microsoft.JSInterop": {
               "target": "Package",
               "version": "[7.0.12, )"
+            },
+            "Solutaris.InfoWARE.ProtectedBrowserStorage": {
+              "target": "Package",
+              "version": "[1.0.2, )"
             },
             "System.Data.OleDb": {
               "target": "Package",
