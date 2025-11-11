@@ -1,0 +1,135 @@
+﻿@page "/misapuestas"
+@using TableroApuestas.Models
+@using TableroApuestas.Data
+@inject AccesoDatos Acceso
+@inject NavigationManager Nav
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage Session
+
+<head>
+    <link href="css/mis-apuestas.css" rel="stylesheet" />
+</head>
+
+<div class="apuestas-page">
+    <h2 class="titulo-apuestas">Mis Apuestas</h2>
+
+    @if (!string.IsNullOrEmpty(MensajeError))
+    {
+        <p style="color: #ff8080; font-weight: bold;">@MensajeError</p>
+    }
+    else if (Detalles == null)
+    {
+        <p class="mensaje-carga">Cargando apuestas...</p>
+    }
+    else if (Detalles.Count == 0)
+    {
+        <p class="mensaje-vacio">No tienes apuestas registradas aún.</p>
+    }
+    else
+    {
+        <!-- 🔹 Resumen general -->
+        <div class="resumen-apuestas">
+            <div class="resumen-card">
+                <span class="icono">💰</span>
+                <h3>Total Apostado</h3>
+                <p>@Detalles.Sum(d => d.Apuesta?.Monto ?? 0).ToString("C")</p>
+            </div>
+            <div class="resumen-card">
+                <span class="icono">✅</span>
+                <h3>Ganadas</h3>
+                <p>@Detalles.Count(d => d.Apuesta?.Estado == "Ganada")</p>
+            </div>
+            <div class="resumen-card">
+                <span class="icono">❌</span>
+                <h3>Perdidas</h3>
+                <p>@Detalles.Count(d => d.Apuesta?.Estado == "Perdida")</p>
+            </div>
+            <div class="resumen-card">
+                <span class="icono">⏳</span>
+                <h3>Pendientes</h3>
+                <p>@Detalles.Count(d => d.Apuesta?.Estado == "Pendiente")</p>
+            </div>
+        </div>
+
+        <!-- 🔹 Tabla de apuestas -->
+        <div class="mis-apuestas-card">
+            <table class="tabla-apuestas">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Deporte</th>
+                        <th>Equipo</th>
+                        <th>Jugador</th>
+                        <th>Evento</th>
+                        <th>Partido</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var det in Detalles)
+                    {
+                        <tr>
+                            <td>@det.Apuesta?.Fecha.ToShortDateString()</td>
+                            <td>@det.Apuesta?.Monto.ToString("C")</td>
+                            <td>@det.Apuesta?.Deporte</td>
+                            <td>@det.Equipo?.Nombre</td>
+                            <td>@det.Jugador?.Nombre</td>
+                            <td>@det.TipoApuestaTexto</td>
+                            <td>@det.Fixture?.Descripcion</td>
+                            <td class="@GetEstadoClase(det.Apuesta?.Estado ?? "")">@det.Apuesta?.Estado</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ApuestaDetalle>? Detalles;
+    private string MensajeError = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await Session.GetAsync<int>("UserId");
+            int usuarioId = result.Success ? result.Value : 0;
+
+            if (usuarioId == 0)
+            {
+                MensajeError = "⚠️ No se detectó un usuario logueado. Iniciá sesión para ver tus apuestas.";
+                return;
+            }
+
+            Detalles = await Acceso.ObtenerApuestasDetalladasPorUsuarioAsync(usuarioId);
+
+            if (Detalles == null)
+            {
+                MensajeError = "❌ No se pudo obtener la lista de apuestas.";
+            }
+            else
+            {
+                await Acceso.ActualizarEstadosApuestasAsync(Detalles);
+            }
+        }
+        catch (Exception ex)
+        {
+            MensajeError = $"❌ Error al cargar apuestas: {ex.Message}";
+            Console.WriteLine(ex);
+        }
+    }
+
+    private string GetEstadoClase(string estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "estado-pendiente",
+            "Ganada" => "estado-ganada",
+            "Perdida" => "estado-perdida",
+            _ => ""
+        };
+    }
+}
+
