@@ -1,0 +1,167 @@
+/* ===== Fondo general ===== */
+body {
+    background-color: #1e1e1e; /* Fondo oscuro */
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ===== Título "Deportes" ===== */
+.titulo {
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    font-size: 52px;
+    font-family: 'Roboto Slab', serif;
+    background: linear-gradient(135deg, #FFD700, #FF8C00); /* Dorado a naranja */
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    user-select: none;
+    outline: none;
+}
+
+/* ===== Secciones ===== */
+.seccion {
+    background: rgba(255, 248, 225, 0.05);
+    border: 1px solid rgba(255, 204, 77, 0.4);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.4);
+    color: #FFD700;
+}
+
+/* ===== Botones "Ver Detalle" ===== */
+.ver-detalle {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #2b1a00;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+    .ver-detalle:hover {
+        background: linear-gradient(135deg, #FFC107, #FF6F00);
+    }
+
+    .ver-detalle:active {
+        background: linear-gradient(135deg, #FFA000, #E65100);
+    }
+
+/* ===== Botón "Modificar Objetivos" ===== */
+.boton-modificar-objetivos {
+    background: linear-gradient(135deg, #FFD700, #FF8C00);
+    color: #2b1a00;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+    .boton-modificar-objetivos:hover {
+        background: linear-gradient(135deg, #FFC107, #FF6A00);
+    }
+
+    .boton-modificar-objetivos:active {
+        background: linear-gradient(135deg, #FFA000, #E65100);
+    }
+
+/* ===== Semaforización de objetivos (NO se cambia) ===== */
+.cumple-objetivo {
+    color: blue;
+    font-weight: bold;
+}
+
+.objetivo-superado {
+    color: green;
+    font-weight: bold;
+}
+
+.no-cumple-objetivo {
+    color: red;
+    font-weight: bold;
+}
+
+/* ===== Tablas ===== */
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+    background: #2c2c2c;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+    .tabla th, .tabla td {
+        padding: 12px;
+        border-bottom: 1px solid rgba(255, 204, 77, 0.3);
+        text-align: center;
+        color: #f8f9fa;
+    }
+
+    .tabla th {
+        background: linear-gradient(135deg, #FFD700, #FF8C00);
+        color: #2b1a00;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .tabla tr:nth-child(even) {
+        background: rgba(255, 215, 0, 0.05);
+    }
+
+    .tabla tr:hover {
+        background: rgba(255, 165, 0, 0.2);
+    }
+
+/* ===== Botón "Ver más" ===== */
+.ver-mas-button {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #2b1a00;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+    .ver-mas-button:hover {
+        background: linear-gradient(135deg, #FFC107, #FF6F00);
+    }
+
+    .ver-mas-button:active {
+        background: linear-gradient(135deg, #FFA000, #E65100);
+    }
+
+/* Semaforización dentro de la tabla (override) */
+.tabla td.estado.cumple-objetivo {
+    color: blue !important;
+    font-weight: bold;
+}
+
+.tabla td.estado.objetivo-superado {
+    color: green !important;
+    font-weight: bold;
+}
+
+.tabla td.estado.no-cumple-objetivo {
+    color: red !important;
+    font-weight: bold;
+}

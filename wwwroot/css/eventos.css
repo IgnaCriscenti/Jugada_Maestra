@@ -1,0 +1,50 @@
+﻿.eventos-page {
+    max-width: 900px;
+    margin: 30px auto;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(3px);
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.filtros label {
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+.filtros select {
+    margin-right: 12px;
+    padding: 4px 6px;
+}
+
+.btn-buscar, .btn-volver {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+    .btn-buscar:hover, .btn-volver:hover {
+        background-color: #1b5e20;
+    }
+
+.resultados table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.resultados th, .resultados td {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.mensaje-vacio {
+    margin-top: 20px;
+    font-style: italic;
+    color: #ccc;
+}

@@ -1,0 +1,126 @@
+body {
+    background-image: url('../Resources/apuestas-deportivas.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center top;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: white;
+}
+
+/* Contenedor general */
+.welcome {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+/* Estilo para el título principal */
+.nombre {
+    font-family: 'Oswald', sans-serif;
+    font-size: 90px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #FFD700, #FFA500); /* Dorado-naranja */
+    -webkit-background-clip: text;
+    color: transparent;
+    user-select: none;
+    outline: none;
+}
+
+/* Subtítulo */
+.titulo {
+    font-family: 'Roboto Slab', serif;
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #FFD700, #FF4500);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+/* Eslogan */
+.eslogan {
+    font-family: 'Lora', serif;
+    font-size: 26px;
+    font-weight: bold;
+    color: #f8f9fa;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+    margin: 15px 0;
+}
+
+/* Texto "Ganar dinero fácil" */
+.ganar-dinero {
+    font-family: 'Poppins', sans-serif;
+    font-size: 34px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+    margin-top: 10px;
+}
+
+/* Botón principal */
+.btn-primary {
+    font-family: 'Roboto', sans-serif;
+    display: inline-block;
+    margin-top: 30px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #2b1a00;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.3s ease-in-out;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #FFC107, #FF8C00);
+        transform: scale(1.05);
+        box-shadow: 0px 6px 16px rgba(0,0,0,0.4);
+    }
+
+    .btn-primary:active {
+        background: linear-gradient(135deg, #FFA000, #FF6F00);
+        transform: scale(0.98);
+    }
+
+/* Solo para la página de apuestas */
+.apostar select {
+    width: 220px;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+    border: 1px solid #FFD700; /* Borde dorado */
+    background: #fff; /* Fondo blanco */
+    color: #333; /* Texto oscuro */
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .apostar select:hover {
+        border-color: #FF8C00; /* Hover naranja */
+        box-shadow: 0px 0px 6px rgba(255, 165, 0, 0.5);
+    }
+
+<div class="welcome" >
+<h1 class="nombre" > Jugada Maestra</h1 >
+<h2 class="titulo" > La mejor app de apuestas deportivas</h2 >
+<p class="eslogan" > La emoción de apostar, la pasión de ganar...</p >
+<p class="ganar-dinero" > ¡Dinero fácil!</p >
+<button class="btn-primary" > Iniciar Sesión</button >
+</div >

@@ -1,0 +1,198 @@
+/* ===== Fondo general ===== */
+body {
+    background-color: #1e1e1e; /* Fondo oscuro para contraste */
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ===== Título "Deportes" ===== */
+.titulo {
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    font-size: 52px;
+    font-family: 'Roboto Slab', serif;
+    background: linear-gradient(135deg, #FFD700, #FF8C00); /* Dorado a naranja */
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    user-select: none;
+    outline: none;
+}
+
+/* ===== Secciones ===== */
+.seccion {
+    background: rgba(255, 248, 225, 0.1);
+    border: 1px solid rgba(255, 204, 77, 0.6);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.4);
+    color: #FFD700;
+    font-weight: 500;
+}
+
+/* ===== Botón "Ver Detalle" ===== */
+.ver-detalle {
+    background: linear-gradient(135deg, #FFD700, #FF8C00);
+    color: #2b1a00;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+    .ver-detalle:hover {
+        background: linear-gradient(135deg, #FFC107, #FF6F00);
+        transform: scale(1.05);
+    }
+
+    .ver-detalle:active {
+        background: linear-gradient(135deg, #FFA000, #E65100);
+        transform: scale(0.97);
+    }
+
+/* ===== Botón Modificar Objetivos ===== */
+.boton-modificar-objetivos {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #2b1a00;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+    .boton-modificar-objetivos:hover {
+        background: linear-gradient(135deg, #FFC107, #FF6A00);
+    }
+
+    .boton-modificar-objetivos:active {
+        background: linear-gradient(135deg, #FFA000, #E65100);
+    }
+
+/* ===== Estados de objetivos ===== */
+.cumple-objetivo {
+    color: #FFD700; /* Dorado brillante */
+    font-weight: bold;
+}
+
+.objetivo-superado {
+    color: #28a745; /* Verde éxito */
+    font-weight: bold;
+}
+
+.no-cumple-objetivo {
+    color: #FF4500; /* Rojo/naranja alerta */
+    font-weight: bold;
+}
+
+/* ===== Tablas ===== */
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+    background-color: #2c2c2c;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 6px 16px rgba(0,0,0,0.4);
+}
+
+    .tabla th, .tabla td {
+        padding: 12px;
+        border-bottom: 1px solid rgba(255, 204, 77, 0.4);
+        text-align: center;
+        color: #f8f9fa;
+    }
+
+    .tabla th {
+        background: linear-gradient(135deg, #FFD700, #FF8C00);
+        color: #2b1a00;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .tabla tr:nth-child(even) {
+        background-color: rgba(255, 215, 0, 0.05);
+    }
+
+    .tabla tr:hover {
+        background-color: rgba(255, 165, 0, 0.2);
+    }
+
+    /* Primera y tercera columna (meses y ligas) */
+    .tabla td:nth-child(1),
+    .tabla td:nth-child(3) {
+        color: #FFD700;
+        font-weight: bold;
+    }
+
+    /* Segunda y cuarta columna (montos) */
+    .tabla td:nth-child(2),
+    .tabla td:nth-child(4) {
+        color: #FF8C00;
+        font-weight: bold;
+    }
+
+/* ===== Botón Ver más ===== */
+.ver-mas-button {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #2b1a00;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+    .ver-mas-button:hover {
+        background: linear-gradient(135deg, #FFC107, #FF6F00);
+    }
+
+/* ===== Subtítulos ===== */
+h2 {
+    text-align: center;
+    font-size: 34px;
+    background: linear-gradient(135deg, #FFD700, #FF8C00);
+    -webkit-background-clip: text;
+    color: transparent;
+    margin: 20px 0;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+}
+
+/* ===== Botón Volver ===== */
+.volver {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #2b1a00;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+    .volver:hover {
+        background: linear-gradient(135deg, #FFC107, #FF6A00);
+    }
+
+    .volver:active {
+        background: linear-gradient(135deg, #FFA000, #E65100);
+    }

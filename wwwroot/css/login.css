@@ -1,0 +1,88 @@
+/* ===== Fondo con imagen + overlay ===== */
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    background: url('../Resources/pelota.jpeg') no-repeat center center fixed;
+    background-size: cover; /* Hace que la imagen cubra toda la pantalla */
+}
+
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        /* leve oscurecido para mejorar contraste del formulario */
+        background: radial-gradient(ellipse at center, rgba(0,0,0,.35), rgba(0,0,0,.55));
+        pointer-events: none;
+    }
+
+/* ===== Título ===== */
+h1 {
+    text-align: center;
+    margin: 0 0 28px 0;
+    font-size: 44px;
+    font-family: 'Roboto Slab',serif;
+    background: linear-gradient(135deg,#FFD54F,#FB8C00); /* dorado -> naranja */
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 10px rgba(0,0,0,.35);
+    user-select: none;
+    outline: none;
+}
+
+/* ===== Card del login (glass) ===== */
+.login-form {
+    width: min(420px,92vw);
+    padding: 36px 32px;
+    border-radius: 16px;
+    background: rgba(255, 248, 225, .18); /* cálido translúcido */
+    border: 1px solid rgba(255, 204, 128, .35); /* borde dorado suave */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+/* ===== Labels ===== */
+.form-group label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 15px;
+    letter-spacing: .2px;
+    font-family: 'Montserrat',sans-serif;
+    color: #FFE0B2; /* dorado claro legible sobre fondo */
+}
+
+/* ===== Inputs ===== */
+.form-control {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,183,77,.6);
+    background: rgba(255,255,255,.85);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+}
+
+    .form-control:focus {
+        border-color: #FFA000;
+        box-shadow: 0 0 0 4px rgba(255,160,0,.25);
+        background: #fff;
+    }
+
+/* ===== Botón ===== */
+.btn-primary {
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px 16px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Montserrat',sans-serif;
+    color: #2b1a00;
+    background: linear-gradient(135deg,#FFE082,#FFB300); /* dorado intenso */
+    border:
