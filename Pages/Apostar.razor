@@ -1,8 +1,10 @@
 ﻿@page "/apostar"
 @using System.Data
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject TableroApuestas.Data.AccesoDatos AccesoDatos
 @inject NavigationManager Nav
+@inject ProtectedSessionStorage Session
 
 <head>
     <link href="css/apostar.css" rel="stylesheet" />
@@ -95,7 +97,7 @@
 
         <div class="acciones">
             <button class="btn-main" @onclick="GuardarApuestaAsync">💾 Guardar Apuesta</button>
-            <a class="btn-ghost" href="/tablero">Cancelar</a>
+            <a class="btn-ghost" href="/tablero-principal">Cancelar</a>
         </div>
 
         @if (!string.IsNullOrWhiteSpace(Msg))
@@ -139,10 +141,10 @@
         foreach (DataRow r in dt.Rows)
         {
             Deportes.Add(new Opcion
-                {
-                    Id = Convert.ToInt32(r["id_deporte"]),
-                    Text = r["nombre"].ToString() ?? ""
-                });
+            {
+                Id = Convert.ToInt32(r["id_deporte"]),
+                Text = r["nombre"].ToString() ?? ""
+            });
         }
     }
 
@@ -197,10 +199,10 @@
         {
             var fecha = Convert.ToDateTime(r["fecha"]).ToString("dd/MM/yyyy");
             Fixtures.Add(new Opcion
-                {
-                    Id = Convert.ToInt32(r["id_fixture"]),
-                    Text = $"{r["descripcion"]} ({fecha})"
-                });
+            {
+                Id = Convert.ToInt32(r["id_fixture"]),
+                Text = $"{r["descripcion"]} ({fecha})"
+            });
         }
     }
 
@@ -266,13 +268,31 @@
                 return;
             }
 
-            int idUsuario = 1; // usuario fijo (por ahora sin login real)
+            var result = await Session.GetAsync<int>("UserId");
+            int idUsuario = result.Success ? result.Value : 0;
+            if (idUsuario == 0)
+            {
+                Msg = "⚠️ No hay usuario logueado. Inicie sesión nuevamente.";
+                return;
+            }
 
-            int idApuesta = await AccesoDatos.InsertarApuestaAsync(idUsuario, Monto);
             string tipo = TiposEvento.FirstOrDefault(t => t.Id == IdTipoEvento)?.Text ?? "";
+
+            // 🧠 Verificar si el evento realmente ocurrió (Ganada o Perdida)
+            string estado = await AccesoDatos.VerificarResultadoApuestaAsync(IdFixture.Value, IdJugador.Value, tipo);
+
+            // ✅ Insertar apuesta con el estado determinado
+            int idApuesta = await AccesoDatos.InsertarApuestaAsync(idUsuario, Monto, IdFixture.Value, estado);
+
+            // 🔹 Insertar detalle
             await AccesoDatos.InsertarApuestaDetalleAsync(idApuesta, IdFixture.Value, IdJugador.Value, tipo);
 
-            Msg = "✅ Apuesta guardada correctamente.";
+            // 🔹 Actualizar tabla mes_ligas
+            await AccesoDatos.ActualizarMontosMesLigasAsync();
+
+            Msg = $"✅ Apuesta registrada correctamente.";
+
+            // 🔹 Limpieza visual
             IdFixture = IdJugador = IdTipoEvento = null;
             Monto = 0;
         }
@@ -287,3 +307,5 @@
         Nav.NavigateTo("/misapuestas");
     }
 }
+
+

@@ -4,6 +4,8 @@
 @using TableroApuestas.Models
 @using TableroApuestas.Data
 @using System.Data
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage Session
 @inject NavigationManager NavigationManager
 @inject IConfiguration Configuration
 @inject AccesoDatos AccesoDatos
@@ -54,11 +56,14 @@
 
         try
         {
-            // 🔹 Validación con bcrypt
-            bool accesoValido = AccesoDatos.ValidarUsuario(usuario.nombre, usuario.password);
+            int userId = AccesoDatos.ValidarUsuarioYObtenerId(usuario.nombre!, usuario.password!);
 
-            if (accesoValido)
+            if (userId > 0)
             {
+                // ✅ Guarda el ID en la sesión
+                await Session.SetAsync("UserId", userId);
+                await Session.SetAsync("UserName", usuario.nombre!);
+
                 NavigationManager.NavigateTo("/tablero-principal");
             }
             else
@@ -68,8 +73,10 @@
         }
         catch (Exception ex)
         {
-            mensajeError = "Ocurrió un error al procesar la solicitud. Por favor, inténtalo más tarde.";
+            mensajeError = "Ocurrió un error al procesar la solicitud.";
             Console.WriteLine(ex.ToString());
         }
+
+
     }
 }
