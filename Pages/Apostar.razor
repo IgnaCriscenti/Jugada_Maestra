@@ -1,0 +1,310 @@
+﻿@page "/apostar"
+@using System.Data
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject TableroApuestas.Data.AccesoDatos AccesoDatos
+@inject NavigationManager Nav
+@inject ProtectedSessionStorage Session
+
+<head>
+    <link href="css/apostar.css" rel="stylesheet" />
+</head>
+
+<div class="apuesta-page">
+    <h1 class="titulo-apuesta">Nueva Apuesta</h1>
+
+    <div class="apuesta-card">
+        <div class="form-grid">
+
+            <!-- ======= Deporte ======= -->
+            <div class="campo">
+                <label>Deporte</label>
+                <select @onchange="OnDeporteChange">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Deportes)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- ======= Liga ======= -->
+            <div class="campo">
+                <label>Liga</label>
+                <select @onchange="OnLigaChange" disabled="@(!IdDeporte.HasValue)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Ligas)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- ======= Fixture ======= -->
+            <div class="campo">
+                <label>Fixture (Partido)</label>
+                <select @onchange="OnFixtureChange" disabled="@(!IdEquipo.HasValue)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Fixtures)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- ======= Equipo ======= -->
+            <div class="campo">
+                <label>Equipo</label>
+                <select @onchange="OnEquipoChange" disabled="@(!IdLiga.HasValue)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Equipos)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- ======= Jugador ======= -->
+            <div class="campo">
+                <label>Jugador</label>
+                <select @onchange="OnJugadorChange" disabled="@(!IdEquipo.HasValue)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in Jugadores)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- ======= Tipo de Evento ======= -->
+            <div class="campo">
+                <label>Tipo de Evento</label>
+                <select @onchange="OnTipoEventoChange" disabled="@(TiposEvento.Count == 0)">
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var o in TiposEvento)
+                    {
+                        <option value="@o.Id">@o.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- ======= Monto ======= -->
+            <div class="campo span-2">
+                <label>Monto</label>
+                <input type="number" min="0" step="0.01" @bind="Monto" placeholder="Ingrese el monto a apostar" />
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button class="btn-main" @onclick="GuardarApuestaAsync">💾 Guardar Apuesta</button>
+            <a class="btn-ghost" href="/tablero-principal">Cancelar</a>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Msg))
+        {
+            <div class="mensaje">@Msg</div>
+        }
+
+        <!-- 🔹 Nuevo botón para ir a Mis Apuestas -->
+        <div class="botones-navegacion">
+            <button class="btn-ver-apuestas" @onclick="VerMisApuestas">
+                📊 Ver Mis Apuestas
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private class Opcion { public int Id { get; set; } public string Text { get; set; } = ""; }
+
+    private List<Opcion> Deportes = new();
+    private List<Opcion> Ligas = new();
+    private List<Opcion> Equipos = new();
+    private List<Opcion> Jugadores = new();
+    private List<Opcion> Fixtures = new();
+    private List<Opcion> TiposEvento = new();
+
+    private int? IdDeporte, IdLiga, IdEquipo, IdJugador, IdFixture, IdTipoEvento;
+    private decimal Monto;
+    private string Msg = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDeportesAsync();
+    }
+
+    private async Task CargarDeportesAsync()
+    {
+        var dt = await AccesoDatos.ObtenerDeportesBasicosAsync();
+        Deportes.Clear();
+        foreach (DataRow r in dt.Rows)
+        {
+            Deportes.Add(new Opcion
+            {
+                Id = Convert.ToInt32(r["id_deporte"]),
+                Text = r["nombre"].ToString() ?? ""
+            });
+        }
+    }
+
+    private async Task CargarLigasAsync()
+    {
+        if (!IdDeporte.HasValue) return;
+        var dt = await AccesoDatos.ObtenerLigasPorDeporteAsyncDT(IdDeporte.Value);
+        Ligas.Clear();
+        foreach (DataRow r in dt.Rows)
+            Ligas.Add(new Opcion { Id = Convert.ToInt32(r["id_liga"]), Text = r["nombre"].ToString() ?? "" });
+    }
+
+    private async Task CargarEquiposAsync()
+    {
+        if (!IdLiga.HasValue) return;
+        var dt = await AccesoDatos.ObtenerEquiposPorLigaAsyncDT(IdLiga.Value);
+        Equipos.Clear();
+        foreach (DataRow r in dt.Rows)
+            Equipos.Add(new Opcion { Id = Convert.ToInt32(r["id_equipo"]), Text = r["nombre"].ToString() ?? "" });
+    }
+
+    private async Task CargarJugadoresAsync()
+    {
+        if (!IdEquipo.HasValue) return;
+        var dt = await AccesoDatos.ObtenerJugadoresPorEquipoAsyncDT(IdEquipo.Value);
+        Jugadores.Clear();
+        foreach (DataRow r in dt.Rows)
+            Jugadores.Add(new Opcion { Id = Convert.ToInt32(r["id_jugador"]), Text = r["nombre"].ToString() ?? "" });
+    }
+
+    private async Task CargarFixturesAsync()
+    {
+        // 🔹 Validar que haya un deporte y un equipo seleccionados antes de continuar
+        if (!IdDeporte.HasValue)
+        {
+            Fixtures.Clear();
+            return;
+        }
+
+        if (!IdEquipo.HasValue)
+        {
+            Fixtures.Clear();
+            return;
+        }
+
+        // 🔹 Ahora sí, ambas variables tienen valor
+        var dt = await AccesoDatos.ObtenerFixturesPorEquipoYDeporteAsyncDT(IdEquipo.Value, IdDeporte.Value);
+
+        Fixtures.Clear();
+
+        foreach (DataRow r in dt.Rows)
+        {
+            var fecha = Convert.ToDateTime(r["fecha"]).ToString("dd/MM/yyyy");
+            Fixtures.Add(new Opcion
+            {
+                Id = Convert.ToInt32(r["id_fixture"]),
+                Text = $"{r["descripcion"]} ({fecha})"
+            });
+        }
+    }
+
+    private async Task CargarTiposEventoAsync()
+    {
+        TiposEvento.Clear();
+        if (!IdDeporte.HasValue) return;
+        string nombreDeporte = Deportes.FirstOrDefault(d => d.Id == IdDeporte)?.Text ?? "";
+        var dt = await AccesoDatos.ObtenerTiposEventoPorDeporteAsync(nombreDeporte);
+        foreach (DataRow r in dt.Rows)
+            TiposEvento.Add(new Opcion { Id = Convert.ToInt32(r["id_tipoEvento"]), Text = r["descripcion"].ToString() ?? "" });
+    }
+
+    // ====== EVENTOS ======
+    private async Task OnDeporteChange(ChangeEventArgs e)
+    {
+        IdDeporte = int.TryParse(e.Value?.ToString(), out var v) ? v : null;
+        await CargarLigasAsync();
+        await CargarTiposEventoAsync();
+
+        Equipos.Clear();
+        Fixtures.Clear();
+        Jugadores.Clear();
+    }
+
+    private async Task OnLigaChange(ChangeEventArgs e)
+    {
+        IdLiga = int.TryParse(e.Value?.ToString(), out var v) ? v : null;
+        await CargarEquiposAsync();
+        Fixtures.Clear();
+        Jugadores.Clear();
+    }
+
+    private async Task OnEquipoChange(ChangeEventArgs e)
+    {
+        IdEquipo = int.TryParse(e.Value?.ToString(), out var v) ? v : null;
+        await CargarFixturesAsync();
+        await CargarJugadoresAsync();
+    }
+
+    private async Task OnFixtureChange(ChangeEventArgs e)
+    {
+        IdFixture = int.TryParse(e.Value?.ToString(), out var v) ? v : null;
+    }
+
+    private void OnJugadorChange(ChangeEventArgs e)
+    {
+        IdJugador = int.TryParse(e.Value?.ToString(), out var v) ? v : null;
+    }
+
+    private void OnTipoEventoChange(ChangeEventArgs e)
+    {
+        IdTipoEvento = int.TryParse(e.Value?.ToString(), out var v) ? v : null;
+    }
+
+    private async Task GuardarApuestaAsync()
+    {
+        try
+        {
+            if (!IdFixture.HasValue || !IdJugador.HasValue || !IdTipoEvento.HasValue || Monto <= 0)
+            {
+                Msg = "⚠️ Complete todos los campos antes de guardar.";
+                return;
+            }
+
+            var result = await Session.GetAsync<int>("UserId");
+            int idUsuario = result.Success ? result.Value : 0;
+            if (idUsuario == 0)
+            {
+                Msg = "⚠️ No hay usuario logueado. Inicie sesión nuevamente.";
+                return;
+            }
+
+            string tipo = TiposEvento.FirstOrDefault(t => t.Id == IdTipoEvento)?.Text ?? "";
+
+            // 🧠 Verificar si el evento realmente ocurrió (Ganada o Perdida)
+            string estado = await AccesoDatos.VerificarResultadoApuestaAsync(IdFixture.Value, IdJugador.Value, tipo);
+
+            // ✅ Insertar apuesta con el estado determinado
+            int idApuesta = await AccesoDatos.InsertarApuestaAsync(idUsuario, Monto, IdFixture.Value, estado);
+
+            // 🔹 Insertar detalle
+            await AccesoDatos.InsertarApuestaDetalleAsync(idApuesta, IdFixture.Value, IdJugador.Value, tipo);
+
+            // 🔹 Actualizar tabla mes_ligas
+            await AccesoDatos.ActualizarMontosMesLigasAsync();
+
+            Msg = $"✅ Apuesta registrada correctamente.";
+
+            // 🔹 Limpieza visual
+            IdFixture = IdJugador = IdTipoEvento = null;
+            Monto = 0;
+        }
+        catch (Exception ex)
+        {
+            Msg = "❌ Error al guardar la apuesta: " + ex.Message;
+        }
+    }
+
+    private void VerMisApuestas()
+    {
+        Nav.NavigateTo("/misapuestas");
+    }
+}
+
+

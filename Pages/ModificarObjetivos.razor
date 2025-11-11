@@ -1,0 +1,105 @@
+﻿@page "/modificar-objetivos"
+@using Microsoft.Extensions.Configuration
+@using System.Threading.Tasks
+@using TableroApuestas.Models
+@using TableroApuestas.Data
+@using System.Data
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+@inject AccesoDatos AccesoDatos
+
+<title>Modificar Objetivos - Apuestas</title>
+
+<head>
+    <link href="css/modificar-objetivos.css" rel="stylesheet" />
+</head>
+
+<div class="contenedor-botones">
+    <a href="/tablero-principal" class="volver">Volver a Tablero Principal</a>
+</div>
+
+
+<h1 class="titulo">Objetivos propuestos</h1>
+
+<table class="tabla">
+    <thead>
+        <tr>
+            <th>Deporte</th>
+            <th>Objetivo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (datosDeportes != null && datosDeportes.Rows.Count > 0)
+        {
+            foreach (DataRow row in datosDeportes.Rows)
+            {
+                <tr>
+                    <td>
+                        @(row["nombre"] != null ? row["nombre"].ToString() : "")
+                    </td>
+                    <td>
+                        <input type="number" @oninput='(e) => ActualizarValorTemporal(e, row)' value='@(ObtenerValorTemporal(row))' />
+                    </td>
+                    <td>
+                        <button @onclick='() => GuardarObjetivo(Convert.ToInt32(row["id_deporte"]), ObtenerValorTemporal(row))' class="guardar">Guardar</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<div class="popup" style="display: @(mostrarPopup ? "block" : "none")">
+    <div class="popup-content">
+        ¡Guardado con éxito! 😄
+    </div>
+</div>
+
+@code {
+    private DataTable datosDeportes = new DataTable();
+    private bool mostrarPopup = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        datosDeportes = await AccesoDatos.ObtenerDatosDeportesAsync();
+    }
+
+    private async Task GuardarObjetivo(int idDeporte, decimal objetivo)
+    {
+        await AccesoDatos.ActualizarObjetivoDeporteAsync(idDeporte, objetivo);
+        mostrarPopup = true;
+    }
+
+    private Dictionary<DataRow, decimal> valoresTemporales = new Dictionary<DataRow, decimal>();
+
+    private decimal ObtenerValorTemporal(DataRow row)
+    {
+        if (valoresTemporales.TryGetValue(row, out var valorTemporal))
+        {
+            return valorTemporal;
+        }
+
+        // Si no hay un valor temporal registrado, devolvemos el valor actual de la fila
+        if (row["objetivo"] != DBNull.Value)
+        {
+            return Convert.ToDecimal(row["objetivo"]);
+        }
+
+        // En caso contrario, devolvemos un valor por defecto (0 en este ejemplo)
+        return 0;
+    }
+
+    private void ActualizarValorTemporal(ChangeEventArgs e, DataRow row)
+    {
+        if (decimal.TryParse(e.Value.ToString(), out var nuevoValor))
+        {
+            valoresTemporales[row] = nuevoValor;
+        }
+    }
+
+    private void VolverATableroPrincipal()
+    {
+        NavigationManager.NavigateTo("/tablero-principal");
+    }
+}

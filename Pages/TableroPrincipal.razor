@@ -1,0 +1,268 @@
+﻿@page "/tablero-principal"
+@using Microsoft.Extensions.Configuration
+@using System.Threading.Tasks
+@using TableroApuestas.Models
+@using TableroApuestas.Data
+@using System.Data
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+@inject AccesoDatos AccesoDatos
+
+<title>Tablero Principal - Apuestas</title>
+
+<head>
+    <link href="css/tablero-principal.css" rel="stylesheet" />
+</head>
+
+<!-- ===== Overrides visuales SOLO para este componente ===== -->
+<style>
+    /* Bloques de deporte más anchos y con más aire */
+    .seccion {
+        max-width: 1200px;
+        margin: 28px auto;
+    }
+
+    /* Botonera Ver Detalle + Apostar */
+    .botonera {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    /* Caja del tablero más clara y con menos blur/niebla */
+    .tablero {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    /* Título principal más grande pero fluido */
+    .titulo {
+        font-size: clamp(40px, 5vw, 64px);
+        letter-spacing: 2px;
+        text-shadow: 0 4px 12px rgba(0,0,0,.35);
+    }
+
+    /* Tabla un poquito más grande */
+    .tabla th,
+    .tabla td {
+        font-size: 18px;
+        padding: 12px 16px;
+    }
+
+    /* Botones apenas más grandes y cómodos */
+    .ver-detalle,
+    .ver-mas-button,
+    .boton-modificar-objetivos {
+        font-size: 16px;
+        padding: 10px 16px;
+    }
+
+    /* Si hay un velo/overlay global oscuro, lo bajamos en esta página */
+    body::before {
+        background: rgba(0, 0, 0, 0.28) !important;
+    }
+</style>
+<!-- ======================================================= -->
+
+<div class="contenedor-botones">
+    <button @onclick="CerrarSesion" class="boton-cerrar-sesion">🔒 Cerrar Sesión</button>
+    <a href="/usuarios" class="boton-modificar-objetivos">Usuarios</a>
+    <a href="/modificar-objetivos" class="boton-modificar-objetivos">Modificar Objetivos</a>
+</div>
+
+<h1 class="titulo">Deportes</h1>
+
+<div class="seccion">
+    <h2>Futbol</h2>
+    <div class="botonera">
+        <button @onclick='() => MostrarTablero("futbol")' class="ver-detalle">Ver Detalle</button>
+        <a href="/apostar?deporte=futbol" class="ver-detalle">Apostar</a>
+        <a href="/eventos?deporte=futbol" class="ver-detalle">Eventos</a>
+    </div>
+    <div class="tablero">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Monto</th>
+                    <th>Objetivo</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (deporteSeleccionado == "futbol" && datosFutbol != null && datosFutbol.Rows.Count > 0)
+                {
+                    foreach (DataRow row in datosFutbol.Rows)
+                    {
+                        <tr>
+                            <td>$@montoFutbol</td>
+                            <td>$@row["objetivo"]</td>
+                            <td class="@CalcularClaseEstado(montoFutbol, Convert.ToDecimal(row["objetivo"]))">@CalcularEstado(montoFutbol, Convert.ToDecimal(row["objetivo"]))</td>
+                            <button @onclick='() => VerMas("futbol")' class="ver-mas-button">Ver más</button>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="seccion">
+    <h2>Basquet</h2>
+    <div class="botonera">
+        <button @onclick='() => MostrarTablero("basquet")' class="ver-detalle">Ver Detalle</button>
+        <a href="/apostar?deporte=basquet" class="ver-detalle">Apostar</a>
+        <a href="/eventos?deporte=basquet" class="ver-detalle">Eventos</a>
+    </div>
+    <div class="tablero">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Monto</th>
+                    <th>Objetivo</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (deporteSeleccionado == "basquet" && datosBasquet != null && datosBasquet.Rows.Count > 0)
+                {
+                    foreach (DataRow row in datosBasquet.Rows)
+                    {
+                        <tr>
+                            <td>$@montoBasquet</td>
+                            <td>$@row["objetivo"]</td>
+                            <td class="@CalcularClaseEstado(montoBasquet, Convert.ToDecimal(row["objetivo"]))">@CalcularEstado(montoBasquet, Convert.ToDecimal(row["objetivo"]))</td>
+                            <button @onclick='() => VerMas("basquet")' class="ver-mas-button">Ver más</button>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="seccion">
+    <h2>Tenis</h2>
+    <div class="botonera">
+        <button @onclick='() => MostrarTablero("tenis")' class="ver-detalle">Ver Detalle</button>
+        <a href="/apostar?deporte=tenis" class="ver-detalle">Apostar</a>
+        <a href="/eventos?deporte=tenis" class="ver-detalle">Eventos</a>
+    </div>
+    <div class="tablero">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Monto</th>
+                    <th>Objetivo</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (deporteSeleccionado == "tenis" && datosTenis != null && datosTenis.Rows.Count > 0)
+                {
+                    foreach (DataRow row in datosTenis.Rows)
+                    {
+                        <tr>
+                            <td>$@montoTenis</td>
+                            <td>$@row["objetivo"]</td>
+                            <td class="@CalcularClaseEstado(montoTenis, Convert.ToDecimal(row["objetivo"]))">@CalcularEstado(montoTenis, Convert.ToDecimal(row["objetivo"]))</td>
+                            <button @onclick='() => VerMas("tenis")' class="ver-mas-button">Ver más</button>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private bool mostrarTablero = false;
+    private string deporteSeleccionado = "";
+    private DataTable datosFutbol = new DataTable();
+    private DataTable datosBasquet = new DataTable();
+    private DataTable datosTenis = new DataTable();
+    private decimal montoFutbol;
+    private decimal montoBasquet;
+    private decimal montoTenis;
+
+    private async Task MostrarTablero(string nombreDeporte)
+    {
+        if (deporteSeleccionado != nombreDeporte)
+        {
+            deporteSeleccionado = nombreDeporte;
+            await CargarDatosDeporte(nombreDeporte);
+            mostrarTablero = true;
+        }
+        else
+        {
+            deporteSeleccionado = "";
+            mostrarTablero = false;
+        }
+    }
+
+    private async Task CargarDatosDeporte(string nombreDeporte)
+    {
+        switch (nombreDeporte)
+        {
+            case "futbol":
+                datosFutbol = await AccesoDatos.ObtenerDatosDeporteCompletoPorNombreAsync("Futbol");
+                montoFutbol = await AccesoDatos.ObtenerMontoTotalDeporteAsync("futbol");
+                break;
+            case "basquet":
+                datosBasquet = await AccesoDatos.ObtenerDatosDeporteCompletoPorNombreAsync("Basquet");
+                montoBasquet = await AccesoDatos.ObtenerMontoTotalDeporteAsync("basquet");
+                break;
+            case "tenis":
+                datosTenis = await AccesoDatos.ObtenerDatosDeporteCompletoPorNombreAsync("Tenis");
+                montoTenis = await AccesoDatos.ObtenerMontoTotalDeporteAsync("tenis");
+                break;
+        }
+    }
+
+    private string CalcularEstado(decimal monto, decimal objetivo)
+    {
+        decimal diferencia = monto - objetivo;
+
+        if (Math.Abs(diferencia) <= 10000) return "CUMPLE OBJETIVO";
+        else if (diferencia > 20000) return "OBJETIVO SUPERADO";
+        else if (diferencia < -20000) return "NO CUMPLE OBJETIVO";
+        else return "En proceso";
+    }
+
+    private string CalcularClaseEstado(decimal monto, decimal objetivo)
+    {
+        decimal diferencia = monto - objetivo;
+
+        if (Math.Abs(diferencia) <= 10000) return "cumple-objetivo";
+        else if (diferencia > 20000) return "objetivo-superado";
+        else if (diferencia < -20000) return "no-cumple-objetivo";
+        else return "";
+    }
+
+    private void VerMas(string deporte)
+    {
+        switch (deporte)
+        {
+            case "futbol":
+                NavigationManager.NavigateTo("/tablero-futbol");
+                break;
+            case "basquet":
+                NavigationManager.NavigateTo("/tablero-basquet");
+                break;
+            case "tenis":
+                NavigationManager.NavigateTo("/tablero-tenis");
+                break;
+        }
+    }
+
+    private void CerrarSesion()
+    {
+        NavigationManager.NavigateTo("/login", true);
+    }
+
+}

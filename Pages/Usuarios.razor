@@ -1,0 +1,153 @@
+﻿@page "/usuarios"
+@using System.Data
+@using System.Threading.Tasks
+@inject TableroApuestas.Data.AccesoDatos AccesoDatos
+@inject NavigationManager NavigationManager
+
+<!-- 🔹 Encabezado con cierre de sesión -->
+<div style="text-align: right; margin: 10px 40px;">
+    <button @onclick="CerrarSesion" class="boton-cerrar-sesion">🔒 Cerrar Sesión</button>
+</div>
+
+<h1 class="titulo">🏆 Ranking de Usuarios y Apuestas</h1>
+
+@if (usuariosTabla == null)
+{
+    <p>Cargando datos...</p>
+}
+else if (usuariosTabla.Rows.Count == 0)
+{
+    <p>No hay usuarios registrados.</p>
+}
+else
+{
+    <table class="tabla">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Total Apostado</th>
+                <th>Monto Ganado</th>
+                <th>Monto Perdido</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int pos = 1;
+                foreach (DataRow row in usuariosTabla.Rows)
+                {
+                    decimal ganado = Convert.ToDecimal(row["MontoGanado"]);
+                    decimal perdido = Convert.ToDecimal(row["MontoPerdido"]);
+                    decimal balance = ganado - perdido;
+                    string color = balance > 0 ? "color:limegreen" : balance < 0 ? "color:crimson" : "color:gold";
+
+                    <tr>
+                        <td>@pos</td>
+                        <td>@row["nombre"]</td>
+                        <td>@row["apellido"]</td>
+                        <td>$@String.Format("{0:N2}", row["TotalApostado"])</td>
+                        <td style="color:limegreen">$@String.Format("{0:N2}", row["MontoGanado"])</td>
+                        <td style="color:crimson">$@String.Format("{0:N2}", row["MontoPerdido"])</td>
+                        <td style="@color">$@String.Format("{0:N2}", balance)</td>
+                    </tr>
+
+                    pos++;
+                }
+            }
+        </tbody>
+    </table>
+
+    <!-- 🔹 Botón volver -->
+    <div style="text-align:center; margin-top:25px;">
+        <button @onclick="VolverAlMenu" class="boton-volver">🏠 Volver al Menú</button>
+    </div>
+}
+
+<style>
+    .boton-cerrar-sesion {
+        background: linear-gradient(90deg, #ff4d4d, #b30000);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+        .boton-cerrar-sesion:hover {
+            background: linear-gradient(90deg, #ff6666, #cc0000);
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
+        }
+
+    .boton-volver {
+        background: linear-gradient(90deg, #00b347, #009933);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+        .boton-volver:hover {
+            background: linear-gradient(90deg, #00cc55, #00aa44);
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(0, 255, 100, 0.4);
+        }
+
+    .titulo {
+        text-align: center;
+        font-size: 48px;
+        color: gold;
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        margin-bottom: 30px;
+    }
+
+    .tabla {
+        width: 90%;
+        margin: auto;
+        border-collapse: collapse;
+        background: rgba(0,0,0,0.4);
+        border-radius: 10px;
+        overflow: hidden;
+        color: white;
+    }
+
+        .tabla th {
+            background: linear-gradient(90deg, #ffbb00, #d48b00);
+            color: black;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .tabla td, .tabla th {
+            padding: 12px 20px;
+            text-align: center;
+        }
+</style>
+
+@code {
+    private DataTable usuariosTabla;
+
+    protected override async Task OnInitializedAsync()
+    {
+        usuariosTabla = await AccesoDatos.ObtenerUsuariosConTotalApostadoAsync();
+    }
+
+    private void CerrarSesion()
+    {
+        NavigationManager.NavigateTo("/login", true);
+    }
+
+    private void VolverAlMenu()
+    {
+        NavigationManager.NavigateTo("/tablero-principal");
+    }
+}

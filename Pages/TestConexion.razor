@@ -1,0 +1,34 @@
+﻿@page "/test-conexion"
+@inject TableroApuestas.Data.AccesoDatos AccesoDatos
+
+<h3>🔌 Prueba de Conexión a Access</h3>
+
+@if (resultado == null)
+{
+    <button @onclick="ProbarConexion">Probar conexión</button>
+}
+else
+{
+    <p>@resultado</p>
+}
+
+@code {
+    private string? resultado;
+
+    private async Task ProbarConexion()
+    {
+        try
+        {
+            var dt = await AccesoDatos.ObtenerDeportesBasicosAsync();
+            if (dt.Rows.Count > 0)
+                resultado = $"✅ Conexión exitosa. Se encontraron {dt.Rows.Count} deportes.";
+            else
+                resultado = "⚠️ Conectó, pero no hay registros en la tabla deportes.";
+        }
+        catch (Exception ex)
+        {
+            resultado = "❌ Error de conexión: " + ex.Message;
+        }
+    }
+}
+

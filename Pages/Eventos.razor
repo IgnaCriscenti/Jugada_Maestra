@@ -1,0 +1,165 @@
+﻿@page "/eventos"
+@using TableroApuestas.Data
+@using System.Data
+@inject AccesoDatos Acceso
+@inject NavigationManager Nav
+
+<head>
+    <link href="css/eventos.css" rel="stylesheet" />
+</head>
+
+<div class="eventos-page">
+    <h2>🎯 Buscar eventos en partidos</h2>
+
+    <!-- 🔹 Selección de filtros -->
+    <div class="filtros">
+        <label>Deporte:</label>
+        <select @onchange="OnDeporteChanged">
+            <option value="">-- Seleccione --</option>
+            @foreach (DataRow dep in Deportes.Rows)
+            {
+                <option value="@dep["id_deporte"]">@dep["nombre"]</option>
+            }
+        </select>
+
+        <label>Liga:</label>
+        <select @onchange="OnLigaChanged" disabled="@(!HayLigas)">
+            <option value="">-- Seleccione --</option>
+            @foreach (DataRow liga in Ligas.Rows)
+            {
+                <option value="@liga["id_liga"]">@liga["nombre"]</option>
+            }
+        </select>
+
+        <label>Equipo:</label>
+        <select @onchange="OnEquipoChanged" disabled="@(!HayEquipos)">
+            <option value="">-- Seleccione --</option>
+            @foreach (DataRow eq in Equipos.Rows)
+            {
+                <option value="@eq["id_equipo"]">@eq["nombre"]</option>
+            }
+        </select>
+
+        <label>Partido (Fixture):</label>
+        <select @onchange="OnFixtureChanged" disabled="@(!HayFixtures)">
+            <option value="">-- Seleccione --</option>
+            @foreach (DataRow fix in Fixtures.Rows)
+            {
+                <option value="@fix["id_fixture"]">
+                    @fix["descripcion"] (@Convert.ToDateTime(fix["fecha"]).ToShortDateString())
+                </option>
+            }
+        </select>
+
+        <button class="btn-buscar" @onclick="BuscarEventos" disabled="@(!PuedeBuscar)">Buscar evento</button>
+    </div>
+
+    <!-- 🔹 Resultados -->
+    @if (EventosTabla != null && EventosTabla.Rows.Count > 0)
+    {
+        <div class="resultados">
+            <h3>📋 Eventos del partido seleccionado</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jugador</th>
+                        <th>Tipo de Evento</th>
+                        <th>Minuto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DataRow row in EventosTabla.Rows)
+                    {
+                        <tr>
+                            <td>@row["jugador"]</td>
+                            <td>@row["tipo_evento"]</td>
+                            <td>@row["minuto"]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (EventosTabla != null)
+    {
+        <p class="mensaje-vacio">⚠️ No hay eventos registrados para este partido.</p>
+    }
+
+    <div class="volver-menu">
+        <button class="btn-volver" @onclick="VolverAlMenu">🏠 Volver al menú</button>
+    </div>
+</div>
+
+@code {
+    DataTable Deportes = new();
+    DataTable Ligas = new();
+    DataTable Equipos = new();
+    DataTable Fixtures = new();
+    DataTable EventosTabla = new();
+
+    int idDeporteSel, idLigaSel, idEquipoSel, idFixtureSel;
+    bool HayLigas => Ligas.Rows.Count > 0;
+    bool HayEquipos => Equipos.Rows.Count > 0;
+    bool HayFixtures => Fixtures.Rows.Count > 0;
+    bool PuedeBuscar => idFixtureSel > 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Deportes = await Acceso.ObtenerDeportesBasicosAsync();
+    }
+
+    private async Task OnDeporteChanged(ChangeEventArgs e)
+    {
+        idDeporteSel = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
+        if (idDeporteSel > 0)
+            Ligas = await Acceso.ObtenerLigasPorDeporteAsyncDT(idDeporteSel);
+        Equipos = new(); Fixtures = new(); EventosTabla = new();
+    }
+
+    private async Task OnLigaChanged(ChangeEventArgs e)
+    {
+        idLigaSel = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
+        if (idLigaSel > 0)
+            Equipos = await Acceso.ObtenerEquiposPorLigaAsyncDT(idLigaSel);
+        Fixtures = new(); EventosTabla = new();
+    }
+
+    private async Task OnEquipoChanged(ChangeEventArgs e)
+    {
+        idEquipoSel = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
+        if (idEquipoSel > 0 && idDeporteSel > 0)
+            Fixtures = await Acceso.ObtenerFixturesPorEquipoYDeporteAsyncDT(idEquipoSel, idDeporteSel);
+        EventosTabla = new();
+    }
+
+    private void OnFixtureChanged(ChangeEventArgs e)
+    {
+        idFixtureSel = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
+    }
+
+    private async Task BuscarEventos()
+    {
+        if (idFixtureSel <= 0) return;
+
+        using var cn = new System.Data.OleDb.OleDbConnection(Acceso.ConnectionString);
+        await cn.OpenAsync();
+
+        string sql = @"
+            SELECT j.nombre AS jugador, te.descripcion AS tipo_evento, ep.minuto
+            FROM (evento_partido AS ep
+            INNER JOIN jugador AS j ON ep.id_jugador = j.id_jugador)
+            INNER JOIN tipo_evento AS te ON ep.id_tipoevento = te.id_tipoevento
+            WHERE ep.id_fixture = ?
+            ORDER BY ep.minuto ASC";
+
+        using var cmd = new System.Data.OleDb.OleDbCommand(sql, cn);
+        cmd.Parameters.AddWithValue("?", idFixtureSel);
+        using var da = new System.Data.OleDb.OleDbDataAdapter(cmd);
+        var dt = new DataTable();
+        da.Fill(dt);
+        EventosTabla = dt;
+    }
+
+    private void VolverAlMenu() => Nav.NavigateTo("/tablero-principal");
+}
+
