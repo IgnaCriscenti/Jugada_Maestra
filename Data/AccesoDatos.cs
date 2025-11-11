@@ -1,11 +1,12 @@
-﻿using System.Data;
-using System;
-using System.Data.OleDb;
-using System.Reflection;
-using TableroApuestas.Models;
-using System.Data.SqlClient;
+﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.OleDb;
+using System.Data.SqlClient;
+using System.Reflection;
 using System.Threading.Tasks;
+using TableroApuestas.Models;
+using static TableroApuestas.Pages.MisApuestas;
 
 namespace TableroApuestas.Data
 {
@@ -18,22 +19,7 @@ namespace TableroApuestas.Data
             this.connectionString = connectionString;
         }
 
-        public DataTable ObtenerTodosLosUsuarios()
-        {
-            DataTable dataTable = new DataTable();
 
-            using (OleDbConnection connection = new OleDbConnection(connectionString))
-            {
-                connection.Open();
-                string query = "SELECT * FROM usuarios";
-                using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, connection))
-                {
-                    adapter.Fill(dataTable);
-                }
-            }
-
-            return dataTable;
-        }
 
         // Registrar usuario con bcrypt
         public void RegistrarUsuario(string nombre, string apellido, string password)
@@ -56,66 +42,33 @@ namespace TableroApuestas.Data
         }
 
         // Validar login con bcrypt
-        public bool ValidarUsuario(string nombre, string password)
+        public int ValidarUsuarioYObtenerId(string nombre, string password)
         {
             using (var connection = new OleDbConnection(connectionString))
             {
                 connection.Open();
 
-                string query = "SELECT PasswordHash FROM usuarios WHERE nombre = @nombre";
+                string query = "SELECT id_usuario, PasswordHash FROM usuarios WHERE nombre = @nombre";
                 using (var command = new OleDbCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@nombre", nombre);
 
-                    object result = command.ExecuteScalar();
-                    if (result == null || result == DBNull.Value)
-                        return false;
-
-                    string hash = result.ToString();
-                    return BCrypt.Net.BCrypt.Verify(password, hash);
-                }
-            }
-        }
-
-        // Obtener usuario por nombre
-        public DataTable ObtenerUsuarioPorNombre(string nombreUsuario)
-        {
-            DataTable dataTable = new DataTable();
-
-            using (OleDbConnection connection = new OleDbConnection(connectionString))
-            {
-                connection.Open();
-                string query = "SELECT * FROM usuarios WHERE nombre = @NombreUsuario";
-
-                using (OleDbCommand cmd = new OleDbCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("@NombreUsuario", nombreUsuario);
-                    using (OleDbDataAdapter adapter = new OleDbDataAdapter(cmd))
+                    using (var reader = command.ExecuteReader())
                     {
-                        adapter.Fill(dataTable);
+                        if (reader.Read())
+                        {
+                            string hash = reader["PasswordHash"].ToString()!;
+                            if (BCrypt.Net.BCrypt.Verify(password, hash))
+                                return Convert.ToInt32(reader["id_usuario"]);
+                        }
                     }
                 }
             }
 
-            return dataTable;
+            return 0; // 0 indica usuario no válido
         }
 
-        // ===================== CONSULTAS DE DEPORTES =====================
-        private DataTable ConsultarDatos(string consulta)
-        {
-            DataTable dataTable = new DataTable();
-
-            using (OleDbConnection connection = new OleDbConnection(connectionString))
-            {
-                connection.Open();
-                using (OleDbDataAdapter adapter = new OleDbDataAdapter(consulta, connection))
-                {
-                    adapter.Fill(dataTable);
-                }
-            }
-
-            return dataTable;
-        }
+        
 
         public async Task<DataTable> ObtenerDatosDeporteCompletoPorNombreAsync(string nombreDeporte)
         {
@@ -425,135 +378,324 @@ namespace TableroApuestas.Data
             }
         }
 
-        // ======= SCHEMA AUTÓMATICO (Access / Jet-ACE) =======
+        // ==============================================
+        // 🔹 VERIFICAR TABLAS Y CAMPOS NECESARIOS
+        // ==============================================
         public async Task EnsureSchemaAsync()
         {
-            // Tablas
-            await EnsureTableAsync("Equipos", @"
-        CREATE TABLE [Equipos](
-          [id_equipo] AUTOINCREMENT PRIMARY KEY,
-          [id_liga]   LONG NOT NULL,
-          [nombre]    TEXT(100) NOT NULL
-        )");
+            using var cn = new OleDbConnection(connectionString);
+            await cn.OpenAsync();
 
-            await EnsureTableAsync("Jugadores", @"
-        CREATE TABLE [Jugadores](
-          [id_jugador] AUTOINCREMENT PRIMARY KEY,
-          [id_equipo]  LONG NOT NULL,
-          [nombre]     TEXT(100) NOT NULL,
-          [posicion]   TEXT(50)
-        )");
+            // =============================================================
+            // 🔹 CREAR TABLAS BASE
+            // =============================================================
+            if (!await TableExistsAsync("deportes"))
+                new OleDbCommand("CREATE TABLE deportes (id_deporte AUTOINCREMENT PRIMARY KEY, nombre TEXT(100))", cn).ExecuteNonQuery();
 
-            await EnsureTableAsync("Fixtures", @"
-        CREATE TABLE [Fixtures](
-          [id_fixture]         AUTOINCREMENT PRIMARY KEY,
-          [id_liga]            LONG NOT NULL,
-          [fecha]              DATETIME NOT NULL,
-          [id_equipo_local]    LONG NOT NULL,
-          [id_equipo_visitante] LONG NOT NULL,
-          [descripcion]        TEXT(255)
-        )");
+            if (!await TableExistsAsync("ligas"))
+                new OleDbCommand("CREATE TABLE ligas (id_liga AUTOINCREMENT PRIMARY KEY, nombre TEXT(100))", cn).ExecuteNonQuery();
 
-            await EnsureTableAsync("Apuestas", @"
-        CREATE TABLE [Apuestas](
-          [id_apuesta]     AUTOINCREMENT PRIMARY KEY,
-          [id_usuario]     LONG NOT NULL,
-          [id_deporte]     LONG NOT NULL,
-          [id_liga]        LONG NOT NULL,
-          [id_equipo]      LONG NOT NULL,
-          [id_fixture]     LONG NOT NULL,
-          [id_jugador]     LONG NOT NULL,
-          [tipo_apuesta]   BYTE NOT NULL,
-          [monto]          CURRENCY NOT NULL,
-          [fecha_creacion] DATETIME NOT NULL,
-          [estado]         BYTE NOT NULL
-        )");
+            if (!await TableExistsAsync("equipos"))
+                new OleDbCommand("CREATE TABLE equipos (id_equipo AUTOINCREMENT PRIMARY KEY, id_liga LONG, nombre TEXT(100))", cn).ExecuteNonQuery();
 
-            // FKs (si ya existen se ignoran)
-            await TryExecAsync(@"ALTER TABLE [Equipos]
-                         ADD CONSTRAINT [fk_equ_liga]
-                         FOREIGN KEY ([id_liga]) REFERENCES [ligas]([id_liga])");
+            if (!await TableExistsAsync("fixture"))
+                new OleDbCommand("CREATE TABLE fixture (id_fixture AUTOINCREMENT PRIMARY KEY, id_liga LONG, id_deporte LONG, fecha DATETIME, descripcion TEXT(255))", cn).ExecuteNonQuery();
 
-            await TryExecAsync(@"ALTER TABLE [Jugadores]
-                         ADD CONSTRAINT [fk_jug_equ]
-                         FOREIGN KEY ([id_equipo]) REFERENCES [Equipos]([id_equipo])");
+            if (!await TableExistsAsync("usuarios"))
+                new OleDbCommand("CREATE TABLE usuarios (id_usuario AUTOINCREMENT PRIMARY KEY, nombre TEXT(100), password TEXT(100))", cn).ExecuteNonQuery();
 
-            await TryExecAsync(@"ALTER TABLE [Fixtures]
-                         ADD CONSTRAINT [fk_fix_liga]
-                         FOREIGN KEY ([id_liga]) REFERENCES [ligas]([id_liga])");
+            if (!await TableExistsAsync("apuesta"))
+                new OleDbCommand("CREATE TABLE apuesta (id_apuesta AUTOINCREMENT PRIMARY KEY, id_usuario LONG, monto CURRENCY, estado TEXT(50), fecha DATETIME, fecha_partido DATETIME)", cn).ExecuteNonQuery();
 
-            await TryExecAsync(@"ALTER TABLE [Fixtures]
-                         ADD CONSTRAINT [fk_fix_local]
-                         FOREIGN KEY ([id_equipo_local]) REFERENCES [Equipos]([id_equipo])");
+            if (!await TableExistsAsync("apuesta_detalle"))
+                new OleDbCommand("CREATE TABLE apuesta_detalle (id_apuestaDetalle AUTOINCREMENT PRIMARY KEY, id_apuesta LONG, id_fixture LONG, id_jugador LONG, tipo_apuesta TEXT(100))", cn).ExecuteNonQuery();
 
-            await TryExecAsync(@"ALTER TABLE [Fixtures]
-                         ADD CONSTRAINT [fk_fix_visit]
-                         FOREIGN KEY ([id_equipo_visitante]) REFERENCES [Equipos]([id_equipo])");
+            if (!await TableExistsAsync("fixture_equipo"))
+                new OleDbCommand("CREATE TABLE fixture_equipo (id_fixtureEquipo AUTOINCREMENT PRIMARY KEY, id_fixture LONG, id_equipo LONG, rol TEXT(20))", cn).ExecuteNonQuery();
 
-            await TryExecAsync(@"ALTER TABLE [Apuestas]
-                         ADD CONSTRAINT [fk_ap_dep]
-                         FOREIGN KEY ([id_deporte]) REFERENCES [deportes]([id_deporte])");
+            if (!await TableExistsAsync("deportes_liga"))
+                new OleDbCommand("CREATE TABLE deportes_liga (id_deporteLiga AUTOINCREMENT PRIMARY KEY, id_deporte LONG, id_liga LONG)", cn).ExecuteNonQuery();
 
-            await TryExecAsync(@"ALTER TABLE [Apuestas]
-                         ADD CONSTRAINT [fk_ap_liga]
-                         FOREIGN KEY ([id_liga]) REFERENCES [ligas]([id_liga])");
+            if (!await TableExistsAsync("mes_ligas"))
+                new OleDbCommand("CREATE TABLE mes_ligas (id_mesliga AUTOINCREMENT PRIMARY KEY, id_liga LONG, id_mes LONG, monto CURRENCY)", cn).ExecuteNonQuery();
 
-            await TryExecAsync(@"ALTER TABLE [Apuestas]
-                         ADD CONSTRAINT [fk_ap_equ]
-                         FOREIGN KEY ([id_equipo]) REFERENCES [Equipos]([id_equipo])");
+            // =============================================================
+            // 🔹 SEED DEPORTES
+            // =============================================================
+            if ((int)new OleDbCommand("SELECT COUNT(*) FROM deportes", cn).ExecuteScalar() == 0)
+            {
+                string[] deportes = { "Futbol", "Basquet", "Tenis" };
+                foreach (var d in deportes)
+                {
+                    using var cmd = new OleDbCommand("INSERT INTO deportes (nombre) VALUES (?)", cn);
+                    cmd.Parameters.AddWithValue("?", d);
+                    cmd.ExecuteNonQuery();
+                }
+            }
 
-            await TryExecAsync(@"ALTER TABLE [Apuestas]
-                         ADD CONSTRAINT [fk_ap_fix]
-                         FOREIGN KEY ([id_fixture]) REFERENCES [Fixtures]([id_fixture])");
+            // =============================================================
+            // 🔹 SEED LIGAS
+            // =============================================================
+            if ((int)new OleDbCommand("SELECT COUNT(*) FROM ligas", cn).ExecuteScalar() == 0)
+            {
+                string[] ligas = {
+            "Serie A", "Premier League", "La Liga",
+            "NBA", "ACB", "Euroleague",
+            "ATP Masters", "ATP 500", "Grand Slam"
+        };
+                foreach (var l in ligas)
+                {
+                    using var cmd = new OleDbCommand("INSERT INTO ligas (nombre) VALUES (?)", cn);
+                    cmd.Parameters.AddWithValue("?", l);
+                    cmd.ExecuteNonQuery();
+                }
+            }
 
-            await TryExecAsync(@"ALTER TABLE [Apuestas]
-                         ADD CONSTRAINT [fk_ap_jug]
-                         FOREIGN KEY ([id_jugador]) REFERENCES [Jugadores]([id_jugador])");
+            // =============================================================
+            // 🔹 SEED DEPORTES_LIGA
+            // =============================================================
+            if ((int)new OleDbCommand("SELECT COUNT(*) FROM deportes_liga", cn).ExecuteScalar() == 0)
+            {
+                for (int i = 1; i <= 3; i++)
+                    new OleDbCommand($"INSERT INTO deportes_liga (id_deporte, id_liga) VALUES (2,{i})", cn).ExecuteNonQuery();
+                for (int i = 4; i <= 6; i++)
+                    new OleDbCommand($"INSERT INTO deportes_liga (id_deporte, id_liga) VALUES (3,{i})", cn).ExecuteNonQuery();
+                for (int i = 7; i <= 9; i++)
+                    new OleDbCommand($"INSERT INTO deportes_liga (id_deporte, id_liga) VALUES (4,{i})", cn).ExecuteNonQuery();
+
+                Console.WriteLine("✅ Tabla deportes_liga creada y vinculada correctamente.");
+            }
+
+            // =============================================================
+            // 🔹 SEED EQUIPOS
+            // =============================================================
+            if ((int)new OleDbCommand("SELECT COUNT(*) FROM equipos", cn).ExecuteScalar() == 0)
+            {
+                var equiposPorLiga = new Dictionary<int, string[]>
+        {
+            { 1, new[] { "Inter", "Juventus", "Milan" } },
+            { 2, new[] { "Manchester City", "Manchester United", "Liverpool" } },
+            { 3, new[] { "Barcelona", "Atletico de Madrid", "Real Madrid" } },
+            { 4, new[] { "Angeles Lakers", "Boston Celtics", "San Antonio Spurs" } },
+            { 5, new[] { "Basquet Zaragoza", "Basquet Girona", "Club Baloncesto Gran Canaria" } },
+            { 6, new[] { "Panathinaikos Athens", "Olympiacos Piraeus", "Baskonia" } },
+            { 7, new[] { "Jannik Sinner", "Carlos Alcaraz", "Novak Djokovic" } },
+            { 8, new[] { "Taylor Fritz", "Francisco Cerundolo", "Alexander Zverev" } },
+            { 9, new[] { "Joao Fonseca", "Ben Shelton", "Casper Ruud" } }
+        };
+                foreach (var kv in equiposPorLiga)
+                {
+                    foreach (var nombre in kv.Value)
+                    {
+                        using var cmd = new OleDbCommand("INSERT INTO equipos (id_liga, nombre) VALUES (?,?)", cn);
+                        cmd.Parameters.AddWithValue("?", kv.Key);
+                        cmd.Parameters.AddWithValue("?", nombre);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+
+            // =============================================================
+            // 🔹 SEED FIXTURES (2025)
+            // =============================================================
+            if ((int)new OleDbCommand("SELECT COUNT(*) FROM fixture", cn).ExecuteScalar() == 0)
+            {
+                Console.WriteLine("🔧 Generando fixtures automáticos...");
+
+                var ligas = new Dictionary<int, (int dep, string[] eq)>
+        {
+            { 1, (2, new[] { "Inter", "Juventus", "Milan" }) },
+            { 2, (2, new[] { "Manchester City", "Manchester United", "Liverpool" }) },
+            { 3, (2, new[] { "Barcelona", "Atletico de Madrid", "Real Madrid" }) },
+            { 4, (3, new[] { "Angeles Lakers", "Boston Celtics", "San Antonio Spurs" }) },
+            { 5, (3, new[] { "Basquet Zaragoza", "Basquet Girona", "Club Baloncesto Gran Canaria" }) },
+            { 6, (3, new[] { "Panathinaikos Athens", "Olympiacos Piraeus", "Baskonia" }) },
+            { 7, (4, new[] { "Jannik Sinner", "Carlos Alcaraz", "Novak Djokovic" }) },
+            { 8, (4, new[] { "Taylor Fritz", "Francisco Cerundolo", "Alexander Zverev" }) },
+            { 9, (4, new[] { "Joao Fonseca", "Ben Shelton", "Casper Ruud" }) }
+        };
+
+                var fechas = new[]
+                {
+            new DateTime(2025, 8, 13),
+            new DateTime(2025, 8, 20),
+            new DateTime(2025, 9, 3),
+            new DateTime(2025, 9, 13),
+            new DateTime(2025, 9, 20),
+            new DateTime(2025, 10, 3)
+        };
+
+                foreach (var kv in ligas)
+                {
+                    int idLiga = kv.Key;
+                    int idDep = kv.Value.dep;
+                    var eqs = kv.Value.eq;
+
+                    for (int i = 0; i < eqs.Length; i++)
+                    {
+                        for (int j = i + 1; j < eqs.Length; j++)
+                        {
+                            string desc = $"{eqs[i]} vs {eqs[j]}";
+                            DateTime fecha = fechas[(i + j) % fechas.Length];
+
+                            using var cmd = new OleDbCommand(
+                                "INSERT INTO fixture (id_liga, id_deporte, fecha, descripcion) VALUES (?,?,?,?)", cn);
+                            cmd.Parameters.AddWithValue("?", idLiga);
+                            cmd.Parameters.AddWithValue("?", idDep);
+                            cmd.Parameters.AddWithValue("?", fecha);
+                            cmd.Parameters.AddWithValue("?", desc);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+
+                Console.WriteLine("✅ Fixtures generados correctamente.");
+            }
+
+            // =============================================================
+            // 🔹 CREAR TABLA EVENTO_PARTIDO (si no existe) Y GENERAR DATOS USANDO fixture_equipo
+            // =============================================================
+            if (!await TableExistsAsync("evento_partido"))
+            {
+                new OleDbCommand("CREATE TABLE evento_partido (id_evento AUTOINCREMENT PRIMARY KEY, id_fixture LONG, id_jugador LONG, id_tipoevento LONG, minuto INTEGER)", cn).ExecuteNonQuery();
+            }
+
+            int countEventosSeed;
+            using (var cmdCountEv = new OleDbCommand("SELECT COUNT(*) FROM evento_partido", cn))
+                countEventosSeed = Convert.ToInt32(cmdCountEv.ExecuteScalar());
+
+            if (countEventosSeed == 0)
+            {
+                Console.WriteLine("⚙️ Generando eventos usando fixture_equipo...");
+
+                var rand = new Random();
+
+                // Tipos de evento agrupados por deporte
+                var tiposPorDep = new Dictionary<string, List<int>>(StringComparer.OrdinalIgnoreCase);
+                using (var cmd = new OleDbCommand("SELECT id_tipoevento, deporte FROM tipo_evento", cn))
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        string dep = r["deporte"].ToString() ?? "";
+                        int idTipo = Convert.ToInt32(r["id_tipoevento"]);
+                        if (!tiposPorDep.ContainsKey(dep))
+                            tiposPorDep[dep] = new List<int>();
+                        tiposPorDep[dep].Add(idTipo);
+                    }
+                }
+
+                string DeporteNombre(int idDep) =>
+                    idDep == 2 ? "Futbol" :
+                    idDep == 3 ? "Basquet" :
+                    idDep == 4 ? "Tenis" : "";
+
+                // Jugadores por equipo
+                var jugadoresPorEquipo = new Dictionary<int, List<int>>();
+                using (var cmd = new OleDbCommand("SELECT id_jugador, id_equipo FROM jugador", cn))
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        int idJug = Convert.ToInt32(r["id_jugador"]);
+                        int idEq = Convert.ToInt32(r["id_equipo"]);
+                        if (!jugadoresPorEquipo.ContainsKey(idEq))
+                            jugadoresPorEquipo[idEq] = new List<int>();
+                        jugadoresPorEquipo[idEq].Add(idJug);
+                    }
+                }
+
+                // fixture_equipo: fixture -> equipos
+                var equiposPorFixture = new Dictionary<int, List<int>>();
+                using (var cmd = new OleDbCommand("SELECT id_fixture, id_equipo FROM fixture_equipo ORDER BY id_fixture, id_fixtureEquipo", cn))
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        int idFix = Convert.ToInt32(r["id_fixture"]);
+                        int idEq = Convert.ToInt32(r["id_equipo"]);
+                        if (!equiposPorFixture.ContainsKey(idFix))
+                            equiposPorFixture[idFix] = new List<int>();
+                        if (!equiposPorFixture[idFix].Contains(idEq))
+                            equiposPorFixture[idFix].Add(idEq);
+                    }
+                }
+
+                using (var cmdFix = new OleDbCommand("SELECT id_fixture, id_deporte FROM fixture", cn))
+                using (var rFix = cmdFix.ExecuteReader())
+                {
+                    while (rFix.Read())
+                    {
+                        int idFix = Convert.ToInt32(rFix["id_fixture"]);
+                        int idDep = Convert.ToInt32(rFix["id_deporte"]);
+                        string depNombre = DeporteNombre(idDep);
+                        if (string.IsNullOrEmpty(depNombre)) continue;
+
+                        if (!equiposPorFixture.TryGetValue(idFix, out var equiposDelPartido) || equiposDelPartido.Count == 0)
+                            continue;
+
+                        if (!tiposPorDep.TryGetValue(depNombre, out var tiposValidos) || tiposValidos.Count == 0)
+                            continue;
+
+                        var equiposConJugadores = equiposDelPartido
+                            .Where(eq => jugadoresPorEquipo.ContainsKey(eq) && jugadoresPorEquipo[eq].Count > 0)
+                            .ToList();
+
+                        if (equiposConJugadores.Count == 0)
+                            continue;
+
+                        int cantidadEventos = rand.Next(3, 7);
+
+                        for (int i = 0; i < cantidadEventos; i++)
+                        {
+                            int idEquipo = equiposConJugadores[rand.Next(equiposConJugadores.Count)];
+                            var jugadoresDeEseEquipo = jugadoresPorEquipo[idEquipo];
+                            int idJugador = jugadoresDeEseEquipo[rand.Next(jugadoresDeEseEquipo.Count)];
+
+                            int idTipo = tiposValidos[rand.Next(tiposValidos.Count)];
+                            int minuto =
+                                depNombre == "Futbol" ? rand.Next(1, 91) :
+                                depNombre == "Basquet" ? rand.Next(1, 49) :
+                                rand.Next(1, 181);
+
+                            using var cmdIns = new OleDbCommand(
+                                "INSERT INTO evento_partido (id_fixture, id_jugador, id_tipoevento, minuto) VALUES (?,?,?,?)", cn);
+                            cmdIns.Parameters.AddWithValue("?", idFix);
+                            cmdIns.Parameters.AddWithValue("?", idJugador);
+                            cmdIns.Parameters.AddWithValue("?", idTipo);
+                            cmdIns.Parameters.AddWithValue("?", minuto);
+                            cmdIns.ExecuteNonQuery();
+                        }
+                    }
+                }
+
+                Console.WriteLine("✅ Eventos generados correctamente usando fixture_equipo.");
+            }
+
+            // =============================================================
+            // 🔹 USUARIO BASE
+            // =============================================================
+            if ((int)new OleDbCommand("SELECT COUNT(*) FROM usuarios", cn).ExecuteScalar() == 0)
+            {
+                using var cmd = new OleDbCommand("INSERT INTO usuarios (nombre, password) VALUES (?,?)", cn);
+                cmd.Parameters.AddWithValue("?", "admin");
+                cmd.Parameters.AddWithValue("?", "123");
+                cmd.ExecuteNonQuery();
+            }
         }
 
         // ---- Helpers ----
-        private async Task<bool> TableExistsAsync(string tableName)
+        private async Task<bool> TableExistsAsync(string name)
         {
             return await Task.Run(() =>
             {
                 using var cn = new OleDbConnection(connectionString);
                 cn.Open();
-                var schema = cn.GetSchema("Tables", new[] { null, null, tableName, "TABLE" });
+                var schema = cn.GetSchema("Tables", new[] { null, null, name, "TABLE" });
                 return schema.Rows.Count > 0;
             });
         }
 
-        private async Task EnsureTableAsync(string name, string createSql)
-        {
-            if (await TableExistsAsync(name)) return;
-
-            await Task.Run(() =>
-            {
-                using var cn = new OleDbConnection(connectionString);
-                cn.Open();
-                using var cmd = new OleDbCommand(createSql, cn);
-                try
-                {
-                    cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error creando tabla [{name}]: {ex.Message}\nSQL:\n{createSql}");
-                }
-            });
-        }
-
-        private async Task TryExecAsync(string sql)
-        {
-            await Task.Run(() =>
-            {
-                using var cn = new OleDbConnection(connectionString);
-                cn.Open();
-                using var cmd = new OleDbCommand(sql, cn);
-                try { cmd.ExecuteNonQuery(); }
-                catch { /* FK ya existe u otro detalle: ignorar */ }
-            });
-        }
 
         // ===================== PASO 3 – NUEVOS MÉTODOS PARA APUESTAS =====================
 
@@ -611,6 +753,7 @@ namespace TableroApuestas.Data
             return dt;
         }
 
+
         public async Task<DataTable> ObtenerFixturesPorEquipoYDeporteAsyncDT(int idEquipo, int idDeporte)
         {
             DataTable dt = new();
@@ -641,90 +784,8 @@ namespace TableroApuestas.Data
             return dt;
         }
 
-        // 💾 Insertar apuesta (parámetros simples para no depender de modelos)
-        public async Task<int> InsertarApuestaAsync(
-            int idUsuario,
-            int idDeporte,
-            int idLiga,
-            int idEquipo,
-            int idFixture,
-            int idJugador,
-            byte tipoApuesta,            // 0=Goles,1=Asistencias,2=Tarjetas
-            decimal monto,
-            DateTime fechaCreacion,
-            byte estado = 0              // 0=Pendiente
-        )
-        {
-            const string sql = @"
-        INSERT INTO Apuestas
-        (id_usuario, id_deporte, id_liga, id_equipo, id_fixture, id_jugador, tipo_apuesta, monto, fecha_creacion, estado)
-        VALUES (?,?,?,?,?,?,?,?,?,?)";
 
-            using var cn = new OleDbConnection(connectionString);
-            await cn.OpenAsync();
-            using var cmd = new OleDbCommand(sql, cn);
-            cmd.Parameters.AddWithValue("@p1", idUsuario);
-            cmd.Parameters.AddWithValue("@p2", idDeporte);
-            cmd.Parameters.AddWithValue("@p3", idLiga);
-            cmd.Parameters.AddWithValue("@p4", idEquipo);
-            cmd.Parameters.AddWithValue("@p5", idFixture);
-            cmd.Parameters.AddWithValue("@p6", idJugador);
-            cmd.Parameters.AddWithValue("@p7", tipoApuesta);
-            cmd.Parameters.AddWithValue("@p8", monto);
-            cmd.Parameters.AddWithValue("@p9", fechaCreacion);
-            cmd.Parameters.AddWithValue("@p10", estado);
-            await cmd.ExecuteNonQueryAsync();
-
-            using var idCmd = new OleDbCommand("SELECT @@IDENTITY", cn);
-            return Convert.ToInt32(await idCmd.ExecuteScalarAsync());
-        }
-
-        // 📊 Total recaudado por deporte desde Apuestas (para tu “Ver detalle”)
-        public async Task<decimal> ObtenerMontoTotalDeporteDesdeApuestasAsync(string nombreDeporte)
-        {
-            const string sql = @"
-        SELECT Nz(SUM(a.monto),0)
-        FROM (Apuestas a INNER JOIN deportes d ON a.id_deporte = d.id_deporte)
-        WHERE LCASE(d.nombre) = LCASE(?)";
-            using var cn = new OleDbConnection(connectionString);
-            await cn.OpenAsync();
-            using var cmd = new OleDbCommand(sql, cn);
-            cmd.Parameters.AddWithValue("@p1", nombreDeporte);
-            var v = await cmd.ExecuteScalarAsync();
-            return (v == null || v == DBNull.Value) ? 0 : Convert.ToDecimal(v);
-        }
-
-        // 🔎 Helper: obtener id_deporte por nombre (futbol/basquet/tenis)
-        public async Task<int?> ObtenerIdDeportePorNombreAsync(string nombreDeporte)
-        {
-            const string sql = "SELECT id_deporte FROM deportes WHERE LCASE(nombre) = LCASE(?)";
-            using var cn = new OleDbConnection(connectionString);
-            await cn.OpenAsync();
-            using var cmd = new OleDbCommand(sql, cn);
-            cmd.Parameters.AddWithValue("@p1", nombreDeporte);
-            var v = await cmd.ExecuteScalarAsync();
-            return (v == null || v == DBNull.Value) ? null : (int?)Convert.ToInt32(v);
-        }
-
-        // 🔗 Devolver string de conexión (para otros métodos)
-        public Task<string> GetConnectionStringAsync() => Task.FromResult(connectionString);
-
-        // 📋 Método genérico para ejecutar SELECT y devolver un DataTable
-        public async Task<DataTable> ConsultarDatosAsync(string sql)
-        {
-            var dt = new DataTable();
-            using (var cn = new OleDbConnection(connectionString))
-            {
-                await cn.OpenAsync();
-                using (var da = new OleDbDataAdapter(sql, cn))
-                {
-                    await Task.Run(() => da.Fill(dt));
-                }
-            }
-            return dt;
-        }
-
-        // ✅ Tipos de evento filtrados por deporte
+        // ✅ Tipos de evento filtrados por deport
         public async Task<DataTable> ObtenerTiposEventoPorDeporteAsync(string nombreDeporte)
         {
             const string sql = "SELECT id_tipoEvento, descripcion FROM tipo_evento WHERE LCASE(deporte) = LCASE(?) ORDER BY descripcion";
@@ -737,95 +798,304 @@ namespace TableroApuestas.Data
             return dt;
         }
 
-        // ================== INSERTAR APUESTA ==================
-        public async Task<int> InsertarApuestaAsync(int idUsuario, decimal monto, string estado = "Pendiente")
+        // ✅ INSERTAR APUESTA (corrige error de tipo y formato de fecha)
+
+        public async Task<int> InsertarApuestaAsync(int idUsuario, decimal monto, int idFixture, string estado = "Pendiente")
         {
             int idApuesta = 0;
 
-            string sqlInsert = @"
-        INSERT INTO [apuesta] ([id_usuario], [monto], [estado])
-        VALUES (?, ?, ?)";
+            using var cn = new OleDbConnection(connectionString + ";Mode=Share Deny None;");
+            await cn.OpenAsync();
 
-            // 🟢 Modo compartido para evitar bloqueos cuando Access está abierto
-            string connectionStringFixed = connectionString + ";Mode=Share Deny None;";
-
-            using (var cn = new OleDbConnection(connectionStringFixed))
+            // 🔹 Obtener la fecha del partido (fixture)
+            DateTime fechaPartido = DateTime.Now;
+            using (var cmdFecha = new OleDbCommand("SELECT fecha FROM fixture WHERE id_fixture = ?", cn))
             {
-                await cn.OpenAsync();
+                cmdFecha.Parameters.AddWithValue("?", idFixture);
+                var result = await cmdFecha.ExecuteScalarAsync();
+                if (result != null && result != DBNull.Value)
+                    fechaPartido = Convert.ToDateTime(result);
+            }
 
-                // 1️⃣ Ejecutar el INSERT
-                using (var cmd = new OleDbCommand(sqlInsert, cn))
-                {
-                    cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Integer, Value = idUsuario });
-                    cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.Currency, Value = monto });
-                    cmd.Parameters.Add(new OleDbParameter { OleDbType = OleDbType.VarChar, Value = estado });
+            // 🔹 Insertar apuesta usando la fecha del partido
+            using (var cmd = new OleDbCommand(
+                "INSERT INTO apuesta (id_usuario, monto, estado, fecha, fecha_partido) VALUES (?,?,?,?,?)", cn))
+            {
+                cmd.Parameters.Add("@p1", OleDbType.Integer).Value = idUsuario;
+                cmd.Parameters.Add("@p2", OleDbType.Currency).Value = monto;
+                cmd.Parameters.Add("@p3", OleDbType.VarChar).Value = estado;
+                cmd.Parameters.Add("@p4", OleDbType.Date).Value = DateTime.Now; // fecha real del sistema
+                cmd.Parameters.Add("@p5", OleDbType.Date).Value = fechaPartido; // fecha del fixture
+                await cmd.ExecuteNonQueryAsync();
+            }
 
-                    await cmd.ExecuteNonQueryAsync();
-                }
-
-                // 2️⃣ Obtener el último ID insertado de forma segura
-                using (var cmdId = new OleDbCommand("SELECT MAX(id_apuesta) FROM apuesta", cn))
-                {
-                    object result = await cmdId.ExecuteScalarAsync();
-                    if (result != DBNull.Value && result != null)
-                        idApuesta = Convert.ToInt32(result);
-                }
+            using (var cmdId = new OleDbCommand("SELECT @@IDENTITY", cn))
+            {
+                object result = await cmdId.ExecuteScalarAsync();
+                if (result != DBNull.Value && result != null)
+                    idApuesta = Convert.ToInt32(result);
             }
 
             return idApuesta;
         }
 
-
-
-        // ================== INSERTAR DETALLE APUESTA ==================
+        // ✅ INSERTAR DETALLE (sin campo fecha)
         public async Task InsertarApuestaDetalleAsync(int idApuesta, int idFixture, int idJugador, string tipoApuesta)
         {
-            string sql = "INSERT INTO apuesta_detalle (id_apuesta, id_fixture, id_jugador, tipo_apuesta, fecha) VALUES (?,?,?,?,?)";
+            using var cn = new OleDbConnection(connectionString);
+            await cn.OpenAsync();
+
+            const string sql = @"INSERT INTO apuesta_detalle (id_apuesta, id_fixture, id_jugador, tipo_apuesta)
+                         VALUES (?,?,?,?)";
+            using var cmd = new OleDbCommand(sql, cn);
+            cmd.Parameters.Add("@p1", OleDbType.Integer).Value = idApuesta;
+            cmd.Parameters.Add("@p2", OleDbType.Integer).Value = idFixture;
+            cmd.Parameters.Add("@p3", OleDbType.Integer).Value = idJugador;
+            cmd.Parameters.Add("@p4", OleDbType.VarChar).Value = tipoApuesta ?? "";
+
+            int rows = await cmd.ExecuteNonQueryAsync();
+            if (rows != 1)
+                throw new Exception("No se pudo insertar el detalle de la apuesta (apuesta_detalle). Revisión de esquema/nombres.");
+        }
+
+        public async Task<List<ApuestaDetalle>> ObtenerApuestasDetalladasPorUsuarioAsync(int idUsuario)
+        {
+            var lista = new List<ApuestaDetalle>();
 
             using var cn = new OleDbConnection(connectionString);
             await cn.OpenAsync();
+
+                    string sql = @"
+            SELECT 
+                a.id_apuesta, a.id_usuario, a.monto, a.estado, a.fecha,
+                ad.id_apuestaDetalle, ad.id_fixture, ad.id_jugador, ad.tipo_apuesta,
+                IIf(f.descripcion Is Null, '', f.descripcion) AS partido,
+                a.fecha_partido AS fecha_partido,
+                IIf(d.nombre Is Null, '', d.nombre) AS deporte,
+                IIf(j.nombre Is Null, '', j.nombre) AS jugador,
+                IIf(e.nombre Is Null, '', e.nombre) AS equipo
+            FROM (((((apuesta AS a
+            LEFT JOIN apuesta_detalle AS ad ON a.id_apuesta = ad.id_apuesta)
+            LEFT JOIN fixture AS f ON ad.id_fixture = f.id_fixture)
+            LEFT JOIN jugador AS j ON ad.id_jugador = j.id_jugador)
+            LEFT JOIN equipos AS e ON j.id_equipo = e.id_equipo)
+            LEFT JOIN deportes AS d ON f.id_deporte = d.id_deporte)
+            WHERE a.id_usuario = ?
+            ORDER BY a.fecha DESC";
+
             using var cmd = new OleDbCommand(sql, cn);
-            cmd.Parameters.AddWithValue("@p1", idApuesta);
-            cmd.Parameters.AddWithValue("@p2", idFixture);
-            cmd.Parameters.AddWithValue("@p3", idJugador);
-            cmd.Parameters.AddWithValue("@p4", tipoApuesta);
-            cmd.Parameters.AddWithValue("@p5", DateTime.Now);
-            await cmd.ExecuteNonQueryAsync();
-        }
+            cmd.Parameters.Add("@p1", OleDbType.Integer).Value = idUsuario;
 
-        public async Task<List<Apuesta>> ObtenerApuestasPorUsuarioAsync(int idUsuario)
-        {
-            List<Apuesta> lista = new();
-
-            using (OleDbConnection conn = new OleDbConnection(connectionString))
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
             {
-                await conn.OpenAsync();
-                string sql = "SELECT id_apuesta, id_usuario, monto, estado FROM apuestas WHERE id_usuario = ?";
-                using (OleDbCommand cmd = new OleDbCommand(sql, conn))
+                var apuesta = new Apuesta
                 {
-                    cmd.Parameters.AddWithValue("?", idUsuario);
+                    IdApuesta = Convert.ToInt32(reader["id_apuesta"]),
+                    IdUsuario = Convert.ToInt32(reader["id_usuario"]),
+                    Monto = Convert.ToDecimal(reader["monto"]),
+                    Estado = reader["estado"]?.ToString() ?? "",
+                    Fecha = Convert.ToDateTime(reader["fecha"]),
+                    FechaPartido = reader["fecha_partido"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(reader["fecha_partido"]),
+                    Deporte = reader["deporte"].ToString() ?? ""
+                };
 
-                    // ⚠️ OleDbDataReader NO tiene ExecuteReaderAsync
-                    using (OleDbDataReader reader = cmd.ExecuteReader())
+                var detalle = new ApuestaDetalle
+                {
+                    IdApuestaDetalle = reader["id_apuestaDetalle"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id_apuestaDetalle"]),
+                    IdApuesta = apuesta.IdApuesta,
+                    IdFixture = reader["id_fixture"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id_fixture"]),
+                    IdJugador = reader["id_jugador"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id_jugador"]),
+                    TipoApuestaTexto = reader["tipo_apuesta"]?.ToString() ?? "",
+                    Apuesta = apuesta,
+                    Fixture = new Fixture
                     {
-                        while (reader.Read())
-                        {
-                            lista.Add(new Apuesta
-                            {
-                                IdApuesta = Convert.ToInt32(reader["id_apuesta"]),
-                                IdUsuario = Convert.ToInt32(reader["id_usuario"]),
-                                Monto = Convert.ToDecimal(reader["monto"]),
-                                Estado = reader["estado"]?.ToString()
-                            });
-                        }
+                        IdFixture = reader["id_fixture"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id_fixture"]),
+                        Descripcion = reader["partido"]?.ToString() ?? "",
+                        Fecha = reader["fecha_partido"] == DBNull.Value ? apuesta.Fecha : Convert.ToDateTime(reader["fecha_partido"])
+                    },
+                    Jugador = new Jugador
+                    {
+                        Id = reader["id_jugador"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id_jugador"]),
+                        Nombre = reader["jugador"]?.ToString() ?? ""
+                    },
+                    Equipo = new Equipo
+                    {
+                        Nombre = reader["equipo"]?.ToString() ?? ""
                     }
-                }
-            }
+                };
 
+                lista.Add(detalle);
+            }
+            lista = lista.OrderBy(d => d.Apuesta.FechaPartido).ToList();
             return lista;
         }
 
+        public async Task ActualizarMontosMesLigasAsync()
+        {
+            using var cn = new OleDbConnection(connectionString);
+            await cn.OpenAsync();
+
+            // 🧹 Limpiar la tabla antes de recalcular
+            using (var cmdDel = new OleDbCommand("DELETE FROM mes_ligas", cn))
+                await cmdDel.ExecuteNonQueryAsync();
+
+            // 🔹 Traer todas las apuestas junto con sus fixtures y ligas
+            string sql = @"
+        SELECT 
+            a.id_apuesta,
+            a.monto,
+            f.id_liga,
+            a.fecha_partido
+        FROM (apuesta AS a
+        INNER JOIN apuesta_detalle AS ad ON a.id_apuesta = ad.id_apuesta)
+        INNER JOIN fixture AS f ON ad.id_fixture = f.id_fixture
+    ";
+
+            var datos = new List<(int idLiga, DateTime fecha, decimal monto)>();
+
+            using (var cmd = new OleDbCommand(sql, cn))
+            using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    int idLiga = Convert.ToInt32(reader["id_liga"]);
+                    decimal monto = Convert.ToDecimal(reader["monto"]);
+
+                    // 🧠 Usamos SÓLO la fecha del partido
+                    DateTime fecha = reader["fecha_partido"] != DBNull.Value
+                        ? Convert.ToDateTime(reader["fecha_partido"])
+                        : DateTime.Now;
+
+                    datos.Add((idLiga, fecha, monto));
+                }
+            }
+
+            // 🔹 Agrupar los montos por MES y LIGA
+            var grupos = datos
+                .GroupBy(x =>
+                {
+                    int mesId = 0;
+                    switch (x.fecha.Month)
+                    {
+                        case 8: mesId = 1; break;  // Agosto
+                        case 9: mesId = 2; break;  // Septiembre
+                        case 10: mesId = 3; break; // Octubre
+                    }
+                    return new { x.idLiga, mesId };
+                })
+                .Where(g => g.Key.mesId != 0)
+                .Select(g => new
+                {
+                    Liga = g.Key.idLiga,
+                    Mes = g.Key.mesId,
+                    Total = g.Sum(x => x.monto)
+                });
+
+            // 🔹 Insertar resultados en mes_ligas
+            foreach (var item in grupos)
+            {
+                using var cmdIns = new OleDbCommand(
+                    "INSERT INTO mes_ligas (id_liga, id_mes, monto) VALUES (?,?,?)", cn);
+                cmdIns.Parameters.AddWithValue("?", item.Liga);
+                cmdIns.Parameters.AddWithValue("?", item.Mes);
+                cmdIns.Parameters.AddWithValue("?", item.Total);
+                await cmdIns.ExecuteNonQueryAsync();
+            }
+
+            Console.WriteLine("✅ Tabla mes_ligas actualizada según fecha_partido correctamente.");
+        }
+
+        public async Task ActualizarEstadosApuestasAsync(List<ApuestaDetalle> detalles)
+        {
+            using var cn = new OleDbConnection(connectionString);
+            await cn.OpenAsync();
+
+            DateTime hoy = DateTime.Now;
+
+            foreach (var det in detalles)
+            {
+                if (det.Apuesta == null || det.Fixture == null)
+                    continue;
+
+                int idApuesta = det.Apuesta.IdApuesta;
+                int idFixture = det.Fixture.IdFixture;
+                string tipoApuesta = det.TipoApuestaTexto?.Trim() ?? "";
+
+                string estado = "Pendiente"; // valor por defecto
+
+                // 🧭 Determinar si el partido ya ocurrió o no
+                if (det.Fixture.Fecha <= hoy)
+                {
+                    // Buscar eventos reales del fixture
+                    using var cmdEv = new OleDbCommand(
+                        "SELECT COUNT(*) FROM evento_partido ep " +
+                        "INNER JOIN tipo_evento te ON ep.id_tipoevento = te.id_tipoevento " +
+                        "WHERE ep.id_fixture = ? AND te.descripcion = ?", cn);
+                    cmdEv.Parameters.AddWithValue("?", idFixture);
+                    cmdEv.Parameters.AddWithValue("?", tipoApuesta);
+
+                    int coincidencias = Convert.ToInt32(await cmdEv.ExecuteScalarAsync());
+
+                    if (coincidencias > 0)
+                        estado = "Ganada";
+                    else
+                        estado = "Perdida";
+                }
+                else
+                {
+                    estado = "Pendiente";
+                }
+
+                // Actualizar el estado de la apuesta
+                using var cmdUpdate = new OleDbCommand(
+                    "UPDATE apuesta SET estado = ? WHERE id_apuesta = ?", cn);
+                cmdUpdate.Parameters.AddWithValue("?", estado);
+                cmdUpdate.Parameters.AddWithValue("?", idApuesta);
+                await cmdUpdate.ExecuteNonQueryAsync();
+
+                // También actualizamos el objeto en memoria (por si se refresca en UI)
+                det.Apuesta.Estado = estado;
+            }
+
+            Console.WriteLine("✅ Estados de apuestas actualizados correctamente.");
+        }
+
+
+        public async Task<string> VerificarResultadoApuestaAsync(int idFixture, int idJugador, string tipoApuesta)
+        {
+            using var cn = new OleDbConnection(connectionString);
+            await cn.OpenAsync();
+
+            // Obtener el id_tipoevento que corresponde al texto de tipoApuesta (por ejemplo, "Gol", "Asistencia", etc.)
+            int idTipoEvento = 0;
+            using (var cmdTipo = new OleDbCommand(
+                "SELECT id_tipoevento FROM tipo_evento WHERE LCASE(descripcion) = LCASE(?)", cn))
+            {
+                cmdTipo.Parameters.AddWithValue("?", tipoApuesta);
+                var result = await cmdTipo.ExecuteScalarAsync();
+                if (result != null && result != DBNull.Value)
+                    idTipoEvento = Convert.ToInt32(result);
+            }
+
+            if (idTipoEvento == 0)
+                return "Perdida"; // si el tipo no existe, la damos por perdida
+
+            // Buscar si hubo algún evento que coincida con el fixture, jugador y tipo_evento
+            using (var cmd = new OleDbCommand(
+                "SELECT COUNT(*) FROM evento_partido WHERE id_fixture = ? AND id_jugador = ? AND id_tipoevento = ?", cn))
+            {
+                cmd.Parameters.AddWithValue("?", idFixture);
+                cmd.Parameters.AddWithValue("?", idJugador);
+                cmd.Parameters.AddWithValue("?", idTipoEvento);
+
+                int coincidencias = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                return coincidencias > 0 ? "Ganada" : "Perdida";
+            }
+        }
+
+
+
     }
 }
-
 
