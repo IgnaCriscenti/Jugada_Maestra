@@ -1,13 +1,21 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Configuration;
-using TableroApuestas.Data;
+using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Configuration;
+using Solutaris.InfoWARE.ProtectedBrowserStorage.Extensions;
+using TableroApuestas.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json");
 
+
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+builder.Services.AddScoped<ProtectedSessionStorage>();
 
 builder.Services.AddScoped(sp =>
 {
