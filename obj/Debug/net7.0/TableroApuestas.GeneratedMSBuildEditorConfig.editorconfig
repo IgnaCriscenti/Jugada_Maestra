@@ -9,73 +9,73 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = TableroApuestas
 build_property.RootNamespace = TableroApuestas
-build_property.ProjectDir = C:\DOCUMENTOS IGNA\IgnaOffice\UAI\TERCER AÑO\Segundo cuatrimestre\Base de Datos aplicadas\Jugada Maestra\
+build_property.ProjectDir = C:\DOCUMENTOS IGNA\IgnaOffice\UAI\TERCER AÑO\Segundo cuatrimestre\Base de Datos aplicadas\Jugada Maestra V3\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 7.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\DOCUMENTOS IGNA\IgnaOffice\UAI\TERCER AÑO\Segundo cuatrimestre\Base de Datos aplicadas\Jugada Maestra
+build_property.MSBuildProjectDirectory = C:\DOCUMENTOS IGNA\IgnaOffice\UAI\TERCER AÑO\Segundo cuatrimestre\Base de Datos aplicadas\Jugada Maestra V3
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 7.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/App.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/App.razor]
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/MainLayout.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = TWFpbkxheW91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/Apostar.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/Apostar.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBvc3Rhci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/Index.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/Index.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/Login.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/Login.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/MisApuestasrazor.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWlzQXB1ZXN0YXNyYXpvci5yYXpvcg==
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/MisApuestas.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWlzQXB1ZXN0YXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/ModificarObjetivos.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/ModificarObjetivos.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kaWZpY2FyT2JqZXRpdm9zLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/Registro.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/Registro.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0cm8ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/TableroBasquet.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/TableroBasquet.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGFibGVyb0Jhc3F1ZXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/TableroFutbol.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/TableroFutbol.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGFibGVyb0Z1dGJvbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/TableroPrincipal.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/TableroPrincipal.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGFibGVyb1ByaW5jaXBhbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/TableroTenis.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/TableroTenis.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGFibGVyb1RlbmlzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/TestConexion.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/TestConexion.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVzdENvbmV4aW9uLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/_Imports.razor]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra/Pages/_Host.cshtml]
+[C:/DOCUMENTOS IGNA/IgnaOffice/UAI/TERCER AÑO/Segundo cuatrimestre/Base de Datos aplicadas/Jugada Maestra V3/Pages/_Host.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TableroApuestas")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8ef0f977295973d11ce4e50ba97b7ca3e6946f17")]
 [assembly: System.Reflection.AssemblyProductAttribute("TableroApuestas")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TableroApuestas")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
