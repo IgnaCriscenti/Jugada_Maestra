@@ -42,3 +42,7 @@ appsettings.*.local.json
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+
+# para entrar en la terminal poner: dotnet run
+# uno de los usuarios: Paolo, contraseña: Paolo
