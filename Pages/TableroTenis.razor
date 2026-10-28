@@ -35,12 +35,21 @@
             {
                 <tr>
                     <td>@mes.Nombre</td>
-                    <td style="color: @(mes.Monto >= 100000 ? "green" : (mes.Monto >= 50000 ? "blue" : "red"));">$@mes.Monto</td>
+                    <td style="color: @(mes.Monto >= 100000 ? "green" : (mes.Monto >= 50000 ? "blue" : "red"));">
+                        $@mes.Monto
+                    </td>
                     <td><button class="ver-detalle" @onclick="() => MostrarTablaLiga(mes.Id)">Ver Liga</button></td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <!-- 🔥 LEYENDA -->
+    <div class="leyenda-objetivos">
+        <p><span class="verde">Verde:</span> cuando supera con los objetivos previstos.</p>
+        <p><span class="azul">Azul:</span> cuando cumple con los objetivos previstos pero debería mejorar.</p>
+        <p><span class="rojo">Rojo:</span> cuando no cumple con los objetivos previstos.</p>
+    </div>
 }
 
 @if (mostrarTablaLiga)
@@ -59,12 +68,21 @@
             {
                 <tr>
                     <td>@liga.Nombre</td>
-                    <td style="color: @(liga.Monto >= 40000 ? "green" : (liga.Monto >= 25000 ? "blue" : "red"));">$@liga.Monto</td>
+                    <td style="color: @(liga.Monto >= 40000 ? "green" : (liga.Monto >= 25000 ? "blue" : "red"));">
+                        $@liga.Monto
+                    </td>
                     <td><button class="ver-detalle" @onclick="MostrarTablaMes">Volver a Meses</button></td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <!-- 🔥 LEYENDA -->
+    <div class="leyenda-objetivos">
+        <p><span class="verde">Verde:</span> cuando supera con los objetivos previstos.</p>
+        <p><span class="azul">Azul:</span> cuando cumple con los objetivos previstos pero debería mejorar.</p>
+        <p><span class="rojo">Rojo:</span> cuando no cumple con los objetivos previstos.</p>
+    </div>
 }
 
 @code {
@@ -75,21 +93,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Obtener los datos de los meses y sus montos
         await ObtenerDatosMesesAsync();
     }
 
     private async Task ObtenerDatosMesesAsync()
     {
-        // Aquí debes usar tu AccesoDatos para obtener los datos de los meses y sus montos para el deporte de tenis
-        // Puedes modificar la consulta según la estructura de tu base de datos
         meses = await AccesoDatos.ObtenerDatosMesesTenisAsync();
     }
 
     private async Task MostrarTablaLiga(int idMes)
     {
-        // Aquí debes obtener los datos de las ligas para el mes específico (idMes) y sus montos
-        // Puedes modificar la consulta según la estructura de tu base de datos
         ligas = await AccesoDatos.ObtenerDatosLigasTenisPorMesAsync(idMes);
         mostrarTablaMes = false;
         mostrarTablaLiga = true;

@@ -4,9 +4,6 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>git rm -r --cached .vsgit rm -r --cached .vs
-git rm -r --cached bin
-git rm -r --cached obj</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

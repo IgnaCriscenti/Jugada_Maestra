@@ -20,6 +20,7 @@ namespace TableroApuestas.Data
         public AccesoDatos(string connectionString)
         {
             this.connectionString = connectionString;
+
         }
 
         public string ConnectionString => connectionString;
@@ -1120,7 +1121,6 @@ namespace TableroApuestas.Data
             }
         }
 
-        #endregion
 
         public async Task<DataTable> ObtenerUsuariosConTotalApostadoAsync()
         {
@@ -1144,5 +1144,8 @@ namespace TableroApuestas.Data
             await Task.Run(() => da.Fill(dt));
             return dt;
         }
+        #endregion
+
+
     }
 }

@@ -185,3 +185,31 @@ h2 {
     .volver:active {
         background: linear-gradient(135deg, #FFA000, #E65100);
     }
+
+
+.leyenda-objetivos {
+    margin-top: 25px;
+    background: rgba(0, 0, 0, 0.65);
+    padding: 18px 28px;
+    border-radius: 12px;
+    width: fit-content;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    font-size: 18px;
+    color: white;
+    backdrop-filter: blur(3px);
+}
+
+    .leyenda-objetivos .verde {
+        color: #00cc44;
+        font-weight: bold;
+    }
+
+    .leyenda-objetivos .azul {
+        color: #00aaff;
+        font-weight: bold;
+    }
+
+    .leyenda-objetivos .rojo {
+        color: #ff3333;
+        font-weight: bold;
+    }
