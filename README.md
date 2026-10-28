@@ -29,21 +29,52 @@ El sistema está estructurado en **capas lógicas**, respetando la separación d
 
 | Tecnología | Descripción |
 |-------------|-------------|
-| **C# / .NET 8.0** | Lenguaje y framework principal del proyecto. |
+| **C# / .NET 7.0** | Lenguaje y framework principal del proyecto. |
 | **ASP.NET Core (Blazor Server)** | Framework web para crear interfaces interactivas con Razor y C#. |
 | **Microsoft Access** | Base de datos utilizada para persistencia local. |
-| **Entity Framework Core** | ORM para el mapeo de entidades y consultas a Access. |
+| **ADO.NET (OleDb)** | Acceso a la base de datos Access mediante consultas SQL. |
+| **BCrypt.Net** | Encriptación de las contraseñas de los usuarios. |
 | **Git & GitHub** | Control de versiones y repositorio remoto del proyecto. |
 
 ---
 
-En Jugada Maestra, en primer lugar, deberás loguearte con usuario y clave, y si aún no tienes, tenes la chance de registrarse!!. Las contraseñas estarán protegidas mediante ByCript dentro de la Base de Datos. 
+## ▶️ Cómo ejecutarlo
 
-Una vez iniciado, podremos ver  las funcionalidades de **Drill Up** y **Drill Down**: el tablero de 3 deportes distintos: fútbol, tenis y básquet. Con cada uno, se verá su detalle, el siguiente contará con un monto recaudado, un monto establecido como objetivo a cumplir, y un estado: Superado / cumple / no superado. Podremos ver en detalle, la cantidad recaudada por mes, y a la vez cuánto se recaudó por liga del deporte establecido. En base al monto establecido como objetivo, el mismo contará con su semaforización para las tablas de los meses y para las tablas de las ligas.
+### Requisitos
 
-El monto establecido como objetivo a cumplir, se puede establecer al inicio de los tableros de los deportes.
+- **Windows** (el acceso a Access mediante OleDb solo funciona en Windows).
+- **SDK de .NET 7 o superior** y **runtime de ASP.NET Core 7** ([descargar](https://dotnet.microsoft.com/download/dotnet/7.0)).
+- **Driver de Access de 64 bits** (*Microsoft Access Database Engine*). Viene incluido con Microsoft Office; si no lo tenés, se descarga gratis desde Microsoft.
 
-Además, contamos con tres **entidades** que se podremos visualizar: 
+### Pasos
+
+```bash
+git clone https://github.com/IgnaCriscenti/Jugada_Maestra.git
+cd Jugada_Maestra
+dotnet run
+```
+
+Luego abrí **http://localhost:5035** en el navegador.
+
+> ⚠️ No abras `Database/bd_apuestas.accdb` en Access mientras la aplicación está corriendo: Access bloquea el archivo y la aplicación puede fallar al guardar datos.
+
+---
+
+## 🕹️ Funcionamiento
+
+En Jugada Maestra, en primer lugar, deberás loguearte con usuario y clave, y si aún no tenés, ¡tenés la chance de registrarte! Las contraseñas estarán protegidas mediante BCrypt dentro de la Base de Datos.
+
+Una vez iniciado, podremos ver las funcionalidades de **Drill Up** y **Drill Down**: el tablero de 3 deportes distintos: fútbol, tenis y básquet. Con cada uno, se verá su detalle, el siguiente contará con un monto recaudado, un monto establecido como objetivo a cumplir, y un estado: Superado / cumple / no superado. Podremos ver en detalle, la cantidad recaudada por mes, y a la vez cuánto se recaudó por liga del deporte establecido. En base al monto establecido como objetivo, el mismo contará con su semaforización para las tablas de los meses y para las tablas de las ligas.
+
+Cada tabla incluye una leyenda que explica el significado de los colores:
+
+- 🟢 **Verde:** supera los objetivos previstos.
+- 🔵 **Azul:** cumple con los objetivos previstos, pero debería mejorar.
+- 🔴 **Rojo:** no cumple con los objetivos previstos.
+
+El monto establecido como objetivo a cumplir se puede establecer al inicio de los tableros de los deportes.
+
+Además, contamos con tres **entidades** que podremos visualizar:
 
  - **Ver "Mis Apuestas"**: dependiendo del usuario quien esté registrado, podrá ver sus apuestas y determinar el detalle, fecha, y si la ganó o la perdió.
 
